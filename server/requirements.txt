@@ -11,7 +11,7 @@ pyOpenSSL==23.1.1
 numpy
 numba
 tqdm
-fairseq
+git+https://github.com/liyaodev/fairseq.git
 resampy==0.4.2
 python-socketio==5.8.0
 fastapi==0.95.1
@@ -21,6 +21,7 @@ scipy==1.10.1
 matplotlib==3.7.1
 websockets==11.0.2
 faiss-cpu==1.7.3
+pyworld
 torchcrepe==0.0.18
 librosa==0.9.1
 gin==0.1.6
