@@ -6,7 +6,7 @@
 wheel
 setuptools
 requests
-uvicorn==0.21.1
+uvicorn
 pyOpenSSL==23.1.1
 numpy
 numba
