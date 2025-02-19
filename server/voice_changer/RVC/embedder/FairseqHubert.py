@@ -2,7 +2,9 @@ import torch
 from torch import device
 from voice_changer.RVC.embedder.Embedder import Embedder
 from fairseq import checkpoint_utils
+from fairseq.data.dictionary import Dictionary
 
+torch.serialization.add_safe_globals([Dictionary])
 
 class FairseqHubert(Embedder):
     def loadModel(self, file: str, dev: device, isHalf: bool = True) -> Embedder:
