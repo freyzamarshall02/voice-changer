@@ -17,7 +17,7 @@ python-socketio==5.8.0
 fastapi==0.95.1
 python-multipart==0.0.6
 onnxruntime-gpu
-scipy==1.10.1
+scipy==1.16.1
 matplotlib==3.7.1
 websockets==11.0.2
 faiss-cpu==1.11.0
