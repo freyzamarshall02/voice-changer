@@ -20,7 +20,7 @@ onnxruntime-gpu
 scipy==1.10.1
 matplotlib==3.7.1
 websockets==11.0.2
-git+https://github.com/facebookresearch/faiss.git
+git+https://github.com/facebookresearch/faiss.git@v1.7.3#subdirectory=faiss/python
 pyworld
 torchcrepe==0.0.18
 librosa==0.9.1
