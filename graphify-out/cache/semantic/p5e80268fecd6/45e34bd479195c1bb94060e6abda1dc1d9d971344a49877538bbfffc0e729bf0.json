@@ -1,0 +1,1 @@
+{"nodes": [{"id": "docs_ita_emotion_text", "label": "ITA Emotion Corpus Text", "file_type": "document", "source_file": "docs/assets/text/ITA_emotion_all.txt", "rationale": "Japanese text corpus used for voice training or testing."}], "edges": [], "hyperedges": []}

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "tutorial_device_mode", "label": "Device Mode Tutorial", "file_type": "document", "source_file": "tutorials/tutorial_device_mode_ja.md", "rationale": "Explains client vs server device modes for latency management."}], "edges": [], "hyperedges": []}

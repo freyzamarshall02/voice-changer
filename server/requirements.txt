@@ -1,0 +1,31 @@
+# # apt-get update
+# # apt-get install -y emacs mlocate wget git curl gcc g++ make unzip
+# # wget https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh
+# # bash Anaconda3-2022.10-Linux-x86_64.sh
+
+wheel
+setuptools
+requests
+uvicorn
+pyOpenSSL
+numpy
+numba
+tqdm
+# fairseq REMOVED — replaced with direct torch.load + torchaudio HuBERT loader
+torchaudio
+pydantic
+resampy
+python-socketio
+fastapi
+python-multipart
+onnxruntime-gpu>=1.17
+scipy
+matplotlib
+websockets
+faiss-cpu
+pyworld-prebuilt
+torchcrepe
+librosa>=0.10.1
+sounddevice
+onnxsim
+torchfcpe

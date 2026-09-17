@@ -1,0 +1,1 @@
+{"nodes": [{"id": "docker_vcclient_readme_en", "label": "VC Client Docker Guide (English)", "file_type": "document", "source_file": "docker_vcclient/README_en.md", "rationale": "Instructions for running the VC Client using Docker."}], "edges": [], "hyperedges": []}
