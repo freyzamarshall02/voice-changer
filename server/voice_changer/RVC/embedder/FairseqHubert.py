@@ -1,81 +1,81 @@
-import sys
-import types
+import pickle
 import torch
 import torchaudio
 from torch import device, nn
 from voice_changer.RVC.embedder.Embedder import Embedder
 
+# ── fairseq-free checkpoint loader ──────────────────────────────────────────
+
+class _Stub:
+    """
+    Generic stand-in for any fairseq / omegaconf class that gets pickled
+    into the checkpoint's `cfg` section.  We only care about reading a
+    handful of scalar fields (encoder_layers, encoder_embed_dim) from it;
+    everything else can safely return a default.
+    """
+    def __init__(self, *args, **kwargs):
+        # Store kwargs so .get() can reflect them; positional args are ignored.
+        self._data: dict = kwargs
+
+    def __getattr__(self, name: str) -> "_Stub":
+        # Chained access (e.g. cfg.model.encoder_layers) returns another stub.
+        return _Stub()
+
+    def get(self, key: str, default=None):
+        return self._data.get(key, default)
+
+    def __iter__(self):
+        return iter([])
+
+    def __bool__(self) -> bool:
+        return False
+
+    def __repr__(self) -> str:
+        return f"_Stub({self._data})"
+
+
+class _FairseqPickleModule:
+    """
+    Drop-in replacement for the `pickle` module that torch.serialization
+    uses internally.  We wrap `Unpickler` so that `find_class` stubs out
+    any fairseq.* / omegaconf.* reference instead of trying to import it.
+    """
+
+    # Expose every attribute of the real pickle module transparently.
+    def __getattr__(self, name):
+        return getattr(pickle, name)
+
+    class Unpickler(pickle.Unpickler):
+        _STUB_PREFIXES = ("fairseq.", "omegaconf.")
+
+        def find_class(self, module: str, name: str):
+            if module.startswith(self._STUB_PREFIXES):
+                return _Stub
+            return super().find_class(module, name)
+
 
 def _load_fairseq_checkpoint_without_fairseq(file: str) -> dict:
     """
-    Load a fairseq-format checkpoint (.pt) without having fairseq installed.
+    Load a fairseq-format .pt checkpoint without fairseq being installed.
 
-    Fairseq checkpoints are pickled with fairseq classes embedded (e.g.
-    fairseq.dataclass.configs.FairseqConfig, omegaconf types, etc.).
-    torch.load with weights_only=False tries to deserialize those classes
-    and raises ModuleNotFoundError when fairseq is absent.
+    torch.serialization uses `pickle` internally.  We temporarily swap it
+    for `_FairseqPickleModule` whose `Unpickler.find_class` returns `_Stub`
+    for every `fairseq.*` / `omegaconf.*` class reference — so the import
+    system is never consulted for those modules.
 
-    Strategy: inject lightweight stub modules into sys.modules for every
-    fairseq.* and omegaconf namespace that the pickler references, so that
-    pickle can reconstruct the objects as plain stub instances.  We only care
-    about the 'model' state-dict and a few scalar cfg fields, so the stubs
-    just need to be pickle-constructible (they implement __reduce__).
+    torch still handles all zip-reading, storage reconstruction, and device
+    mapping; we only intercept the class-name → class lookup step.
     """
+    import torch.serialization as _ts
 
-    class _Stub:
-        """Generic stub for any fairseq / omegaconf class."""
-        def __init__(self, *args, **kwargs):
-            self._args = args
-            self._kwargs = kwargs
-
-        # Allow attribute access so cfg.model.encoder_layers works
-        def __getattr__(self, name):
-            return None
-
-        def get(self, key, default=None):
-            return default
-
-    class _StubModule(types.ModuleType):
-        """Module stub that returns _Stub for any attribute lookup."""
-        def __getattr__(self, name):
-            # Return a class (not instance) so pickle can call it as constructor
-            return _Stub
-
-    # Build stub modules for all fairseq sub-packages referenced by typical checkpoints
-    _stub_prefixes = [
-        "fairseq",
-        "fairseq.dataclass",
-        "fairseq.dataclass.configs",
-        "fairseq.models",
-        "fairseq.models.wav2vec",
-        "fairseq.models.wav2vec.wav2vec2",
-        "fairseq.models.roberta",
-        "fairseq.tasks",
-        "fairseq.tasks.audio_pretraining",
-        "fairseq.data",
-        "omegaconf",
-        "omegaconf._utils",
-        "omegaconf.omegaconf",
-    ]
-
-    # Save original modules so we can restore them after loading
-    _saved = {k: sys.modules.get(k) for k in _stub_prefixes}
-
+    _real_pickle = _ts.pickle          # save
+    _ts.pickle = _FairseqPickleModule()  # swap
     try:
-        for prefix in _stub_prefixes:
-            if prefix not in sys.modules:
-                sys.modules[prefix] = _StubModule(prefix)
-
-        checkpoint = torch.load(file, map_location="cpu", weights_only=False)
-        return checkpoint
+        return torch.load(file, map_location="cpu", weights_only=False)
     finally:
-        # Restore original sys.modules state
-        for prefix in _stub_prefixes:
-            original = _saved[prefix]
-            if original is None:
-                sys.modules.pop(prefix, None)
-            else:
-                sys.modules[prefix] = original
+        _ts.pickle = _real_pickle      # always restore
+
+
 
 
 class HubertModelWithFinalProj(nn.Module):
