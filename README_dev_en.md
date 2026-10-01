@@ -36,7 +36,7 @@ $ pip install -r requirements.txt
 Run server with the below command. You can replace the path to each weight.
 
 ```
-$ python3 MMVCServerSIO.py -p 18888 --https true \
+$ python3 Okada.py -p 18888 --https true \
     --content_vec_500 pretrain/checkpoint_best_legacy_500.pt  \
     --content_vec_500_onnx pretrain/content_vec_500.onnx \
     --content_vec_500_onnx_on true \

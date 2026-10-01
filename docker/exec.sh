@@ -26,11 +26,11 @@ if  [ "${MODE}" = "MMVC" ] ; then
     find /resources/ -type f -name "*.onnx"       | xargs -I{} sh -c 'echo "`basename {}`をコピーします。" && cp {} ./'
 
     echo "MMVCを起動します"
-    python3 MMVCServerSIO.py -t MMVC $PARAMS #2>stderr.txt
+    python3 Okada.py -t MMVC $PARAMS #2>stderr.txt
 
 elif [ "${MODE}" = "TRAIN" ] ; then
     python3 -m tensorboard.main --logdir MMVC_Trainer/logs --port 6006 --host 0.0.0.0 &
-    python3 MMVCServerSIO.py -t TRAIN $PARAMS
+    python3 Okada.py -t TRAIN $PARAMS
 fi
 
 
