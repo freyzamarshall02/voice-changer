@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Tuple
 
 from const import RVCSampleMode, getSampleJsonAndModelIds
@@ -10,7 +9,7 @@ from data.ModelSlot import ModelSlot, RVCModelSlot
 from mods.log_control import VoiceChangaerLogger
 from voice_changer.ModelSlotManager import ModelSlotManager
 from voice_changer.RVC.RVCModelSlotGenerator import RVCModelSlotGenerator
-from downloader.Downloader import download, download_no_tqdm
+from downloader.Downloader import download_all, download_no_tqdm
 
 logger = VoiceChangaerLogger.get_instance().getLogger()
 
@@ -31,7 +30,7 @@ def downloadSample(mode: RVCSampleMode, modelId: str, model_dir: str, slotIndex:
     sampleJsonUrls, _sampleModels = getSampleJsonAndModelIds(mode)
     sampleJsons = _generateSampleJsons(sampleJsonUrls)
     samples = _generateSampleList(sampleJsons)
-    _downloadSamples(samples, [(modelId, params)], model_dir, [slotIndex], withoutTqdm=True)
+    _downloadSamples(samples, [(modelId, params)], model_dir, [slotIndex])
     pass
 
 
@@ -71,7 +70,7 @@ def _generateSampleList(sampleJsons: list[str]):
     return samples
 
 
-def _downloadSamples(samples: list[ModelSamples], sampleModelIds: list[Tuple[str, Any]], model_dir: str, slotIndex: list[int], withoutTqdm=False):
+def _downloadSamples(samples: list[ModelSamples], sampleModelIds: list[Tuple[str, Any]], model_dir: str, slotIndex: list[int]):
     downloadParams = []
     line_num = 0
     modelSlotManager = ModelSlotManager.get_instance(model_dir)
@@ -156,13 +155,7 @@ def _downloadSamples(samples: list[ModelSamples], sampleModelIds: list[Tuple[str
             logger.warning(f"[Voice Changer] {sample.voiceChangerType} is not supported.")
 
     # ダウンロード
-    logger.info("[Voice Changer] Downloading model files...")
-    if withoutTqdm:
-        with ThreadPoolExecutor() as pool:
-            pool.map(download_no_tqdm, downloadParams)
-    else:
-        with ThreadPoolExecutor() as pool:
-            pool.map(download, downloadParams)
+    download_all(downloadParams, label="Downloading model files")
 
     # メタデータ作成
     logger.info("[Voice Changer] Generating metadata...")

@@ -1,7 +1,6 @@
 import os
-from concurrent.futures import ThreadPoolExecutor
 
-from downloader.Downloader import download
+from downloader.Downloader import download_all
 from mods.log_control import VoiceChangaerLogger
 from voice_changer.utils.VoiceChangerParams import VoiceChangerParams
 from Exceptions import WeightDownladException
@@ -99,8 +98,7 @@ def downloadWeight(voiceChangerParams: VoiceChangerParams):
             }
         )
 
-    with ThreadPoolExecutor() as pool:
-        pool.map(download, downloadParams)
+    download_all(downloadParams, label="Downloading pretrain weights")
 
     if os.path.exists(hubert_base) is False or os.path.exists(hubert_base_jp) is False:
         raise WeightDownladException()
