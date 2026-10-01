@@ -1,7 +1,81 @@
+import sys
+import types
 import torch
 import torchaudio
 from torch import device, nn
 from voice_changer.RVC.embedder.Embedder import Embedder
+
+
+def _load_fairseq_checkpoint_without_fairseq(file: str) -> dict:
+    """
+    Load a fairseq-format checkpoint (.pt) without having fairseq installed.
+
+    Fairseq checkpoints are pickled with fairseq classes embedded (e.g.
+    fairseq.dataclass.configs.FairseqConfig, omegaconf types, etc.).
+    torch.load with weights_only=False tries to deserialize those classes
+    and raises ModuleNotFoundError when fairseq is absent.
+
+    Strategy: inject lightweight stub modules into sys.modules for every
+    fairseq.* and omegaconf namespace that the pickler references, so that
+    pickle can reconstruct the objects as plain stub instances.  We only care
+    about the 'model' state-dict and a few scalar cfg fields, so the stubs
+    just need to be pickle-constructible (they implement __reduce__).
+    """
+
+    class _Stub:
+        """Generic stub for any fairseq / omegaconf class."""
+        def __init__(self, *args, **kwargs):
+            self._args = args
+            self._kwargs = kwargs
+
+        # Allow attribute access so cfg.model.encoder_layers works
+        def __getattr__(self, name):
+            return None
+
+        def get(self, key, default=None):
+            return default
+
+    class _StubModule(types.ModuleType):
+        """Module stub that returns _Stub for any attribute lookup."""
+        def __getattr__(self, name):
+            # Return a class (not instance) so pickle can call it as constructor
+            return _Stub
+
+    # Build stub modules for all fairseq sub-packages referenced by typical checkpoints
+    _stub_prefixes = [
+        "fairseq",
+        "fairseq.dataclass",
+        "fairseq.dataclass.configs",
+        "fairseq.models",
+        "fairseq.models.wav2vec",
+        "fairseq.models.wav2vec.wav2vec2",
+        "fairseq.models.roberta",
+        "fairseq.tasks",
+        "fairseq.tasks.audio_pretraining",
+        "fairseq.data",
+        "omegaconf",
+        "omegaconf._utils",
+        "omegaconf.omegaconf",
+    ]
+
+    # Save original modules so we can restore them after loading
+    _saved = {k: sys.modules.get(k) for k in _stub_prefixes}
+
+    try:
+        for prefix in _stub_prefixes:
+            if prefix not in sys.modules:
+                sys.modules[prefix] = _StubModule(prefix)
+
+        checkpoint = torch.load(file, map_location="cpu", weights_only=False)
+        return checkpoint
+    finally:
+        # Restore original sys.modules state
+        for prefix in _stub_prefixes:
+            original = _saved[prefix]
+            if original is None:
+                sys.modules.pop(prefix, None)
+            else:
+                sys.modules[prefix] = original
 
 
 class HubertModelWithFinalProj(nn.Module):
@@ -41,7 +115,7 @@ class FairseqHubert(Embedder):
         num_layers = 12
         encoder_embed_dim = 768
         try:
-            checkpoint = torch.load(file, map_location="cpu", weights_only=False)
+            checkpoint = _load_fairseq_checkpoint_without_fairseq(file)
             cfg = checkpoint.get("cfg", None)
             if cfg is not None:
                 # cfg can be omegaconf.DictConfig or a plain dict
