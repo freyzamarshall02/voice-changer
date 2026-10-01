@@ -25,7 +25,11 @@ class RMVPEOnnxPitchExtractor(PitchExtractor):
 
         so = onnxruntime.SessionOptions()
         so.log_severity_level = 3
-        self.onnx_session = onnxruntime.InferenceSession(self.file, sess_options=so, providers=onnxProviders, provider_options=onnxProviderOptions)
+        try:
+            self.onnx_session = onnxruntime.InferenceSession(self.file, sess_options=so, providers=onnxProviders, provider_options=onnxProviderOptions)
+        except Exception as e:
+            print(f"[Voice Changer][RMVPE] Primary provider failed ({e}), falling back to CPU")
+            self.onnx_session = onnxruntime.InferenceSession(self.file, sess_options=so, providers=["CPUExecutionProvider"], provider_options=[{"intra_op_num_threads": 8}])
 
     def extract(self, audio, pitchf, f0_up_key, sr, window, silence_front=0):
         try:

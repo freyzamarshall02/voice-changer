@@ -54,8 +54,8 @@ class DeviceManager(object):
                         [helper.make_tensor_value_info("x", TensorProto.FLOAT, [1])],
                         [helper.make_tensor_value_info("y", TensorProto.FLOAT, [1])],
                     )
-                    model_proto = helper.make_model(graph)
-                    model_proto.ir_version = 7  # pin to IR v7 — avoids onnx lib vs onnxruntime IR version mismatch
+                    model_proto = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 11)])
+                    model_proto.ir_version = 7  # pin IR v7 + opset 11 — avoids onnx lib vs onnxruntime version mismatch
                     with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as f:
                         f.write(model_proto.SerializeToString())
                         probe_path = f.name

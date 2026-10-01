@@ -16,9 +16,15 @@ class CrepeOnnxPitchExtractor(PitchExtractor):
             onnxProviderOptions,
         ) = DeviceManager.get_instance().getOnnxExecutionProvider(gpu)
 
-        self.onnx_session = onnxruntime.InferenceSession(
-            file, providers=onnxProviders, provider_options=onnxProviderOptions
-        )
+        try:
+            self.onnx_session = onnxruntime.InferenceSession(
+                file, providers=onnxProviders, provider_options=onnxProviderOptions
+            )
+        except Exception as e:
+            print(f"[Voice Changer][Crepe] Primary provider failed ({e}), falling back to CPU")
+            self.onnx_session = onnxruntime.InferenceSession(
+                file, providers=["CPUExecutionProvider"], provider_options=[{"intra_op_num_threads": 8}]
+            )
 
     def extract(self, audio, pitchf, f0_up_key, sr, window, silence_front=0):
         start_frame = int(silence_front * sr / window)
