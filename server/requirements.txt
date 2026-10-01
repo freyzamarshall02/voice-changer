@@ -20,7 +20,7 @@ python-socketio>=5.7,<6
 python-engineio>=4.3,<5
 fastapi
 python-multipart
-onnxruntime-gpu>=1.17,<1.19
+onnxruntime-gpu
 scipy
 matplotlib
 websockets
