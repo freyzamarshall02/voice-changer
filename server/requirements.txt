@@ -16,10 +16,11 @@ transformers>=4.27.0
 # torchaudio REMOVED — no longer needed after FairseqHubert rewrite
 pydantic
 resampy
-python-socketio
+python-socketio>=5.7,<6
+python-engineio>=4.3,<5
 fastapi
 python-multipart
-onnxruntime-gpu>=1.17
+onnxruntime-gpu>=1.17,<1.19
 scipy
 matplotlib
 websockets

@@ -14,22 +14,25 @@ class OnnxRVCInferencer(Inferencer):
             onnxProviderOptions,
         ) = DeviceManager.get_instance().getOnnxExecutionProvider(gpu)
 
-        onnx_session = onnxruntime.InferenceSession(
-            file, providers=onnxProviders, provider_options=onnxProviderOptions
-        )
+        try:
+            onnx_session = onnxruntime.InferenceSession(
+                file, providers=onnxProviders, provider_options=onnxProviderOptions
+            )
+        except Exception as e:
+            print(f"[Voice Changer][ONNX] Primary provider failed ({e}), falling back to CPU")
+            onnx_session = onnxruntime.InferenceSession(
+                file,
+                providers=["CPUExecutionProvider"],
+                provider_options=[{"intra_op_num_threads": 8}],
+            )
 
         # check half-precision
         first_input_type = onnx_session.get_inputs()[0].type
-        if first_input_type == "tensor(float)":
-            self.isHalf = False
-        else:
-            self.isHalf = True
-
+        self.isHalf = first_input_type != "tensor(float)"
         self.model = onnx_session
-
         self.inferencerTypeVersion = inferencerTypeVersion
-
         return self
+
 
     def infer(
         self,

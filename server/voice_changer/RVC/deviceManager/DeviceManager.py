@@ -37,27 +37,52 @@ class DeviceManager(object):
         availableProviders = onnxruntime.get_available_providers()
         devNum = torch.cuda.device_count()
         if gpu >= 0 and "CUDAExecutionProvider" in availableProviders and devNum > 0:
-            if gpu < devNum:  # ひとつ前のif文で弾いてもよいが、エラーの解像度を上げるため一段下げ。
-                return ["CUDAExecutionProvider"], [{"device_id": gpu}]
+            if gpu < devNum:
+                # Probe: try to create a tiny session with CUDAExecutionProvider.
+                # onnxruntime-gpu built for a different CUDA version will fail here
+                # with a RuntimeError about missing SO files rather than just a warning.
+                try:
+                    import numpy as np
+                    import os
+                    import tempfile
+                    import onnx
+                    from onnx import helper, TensorProto
+
+                    node = helper.make_node("Identity", ["x"], ["y"])
+                    graph = helper.make_graph(
+                        [node], "probe",
+                        [helper.make_tensor_value_info("x", TensorProto.FLOAT, [1])],
+                        [helper.make_tensor_value_info("y", TensorProto.FLOAT, [1])],
+                    )
+                    model_proto = helper.make_model(graph)
+                    with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as f:
+                        f.write(model_proto.SerializeToString())
+                        probe_path = f.name
+                    try:
+                        sess = onnxruntime.InferenceSession(
+                            probe_path,
+                            providers=["CUDAExecutionProvider"],
+                            provider_options=[{"device_id": gpu}],
+                        )
+                        sess.run(None, {"x": np.zeros([1], dtype=np.float32)})
+                        return ["CUDAExecutionProvider"], [{"device_id": gpu}]
+                    finally:
+                        os.unlink(probe_path)
+                except Exception as cuda_err:
+                    print(f"[Voice Changer] CUDAExecutionProvider unavailable ({cuda_err}), using CPU")
             else:
                 print("[Voice Changer] device detection error, fallback to cpu")
-                return ["CPUExecutionProvider"], [
-                    {
-                        "intra_op_num_threads": 8,
-                        "execution_mode": onnxruntime.ExecutionMode.ORT_PARALLEL,
-                        "inter_op_num_threads": 8,
-                    }
-                ]
         elif gpu >= 0 and "DmlExecutionProvider" in availableProviders:
             return ["DmlExecutionProvider"], [{"device_id": gpu}]
-        else:
-            return ["CPUExecutionProvider"], [
-                {
-                    "intra_op_num_threads": 8,
-                    "execution_mode": onnxruntime.ExecutionMode.ORT_PARALLEL,
-                    "inter_op_num_threads": 8,
-                }
-            ]
+
+        return ["CPUExecutionProvider"], [
+            {
+                "intra_op_num_threads": 8,
+                "execution_mode": onnxruntime.ExecutionMode.ORT_PARALLEL,
+                "inter_op_num_threads": 8,
+            }
+        ]
+
 
     def setForceTensor(self, forceTensor: bool):
         self.forceTensor = forceTensor
