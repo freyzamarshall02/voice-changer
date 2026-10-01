@@ -1,16 +1,16 @@
 # Graph Report - voice-changer  (2026-10-01)
 
 ## Corpus Check
-- 314 files · ~310,050 words
+- 314 files · ~310,574 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4666 nodes · 10354 edges · 295 communities (180 shown, 92 thin omitted)
+- 4689 nodes · 10378 edges · 294 communities (181 shown, 86 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 509 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0df98dd8`
+- Built from commit: `6ca6eed2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,23 +18,24 @@
 - index.js
 - e
 - s
+- Session Summary — 2026-10-01
 - PitchExtractor
 - VoiceChangerV2
 - c
-- m
+- c
 - VoiceChangerManager
 - n
-- a
+- xl
 - rmvpe.py
 - DeviceManager
 - VoiceChangerManager.py
 - .run
 - devDependencies
-- i
+- l
 - a
-- .create
-- he
-- Fs
+- D
+- .default
+- m
 - R
 - Steps up to startup
 - .trace
@@ -44,13 +45,14 @@
 - dependencies
 - Embedder
 - infer_pack/models.py
+- p
 - Configuration
 - .__init__
-- .chooseInputIntrinsicDevice
+- Conv1d
 - .updateRemoteVideosFromLastVideosToReceive
 - MultiHeadAttention
 - useAppState
-- Ae
+- _Stub
 - dependencies
 - 002_ComponentGenerator.tsx
 - i
@@ -64,11 +66,11 @@
 - Start GUI
 - 001_GuiStateProvider.tsx
 - useClient.ts
-- .removeObserver
-- n
+- .run
+- .of
 - README_ar.md
 - README_de.md
-- .equal
+- updateVideoTransceivers
 - AppSettingProvider.tsx
 - README_el.md
 - README_es.md
@@ -77,8 +79,9 @@
 - AppStateProvider.tsx
 - docs_i18n/README_ko.md
 - useMessageBuilder
-- FairseqHubert.py
+- .loadModel
 - useAppSetting
+- m
 - README_la.md
 - README_ms.md
 - package.json
@@ -87,17 +90,18 @@
 - README_ru.md
 - README_zh.md
 - ErrorBoundary
-- infer_pack/commons.py
+- rand_slice_segments
 - dependencies
 - conver_test.py
 - Quick start
 - trouble_shoot_communication_ko.md
 - VoiceChangerClient.ts
-- .default
+- .has
 - VoiceChangerModel
 - useGuiState
 - scripts
 - Phase 2 — Python 3.12 / Google Colab Compatibility Rework
+- infer_pack/commons.py
 - voras_beta/modules.py
 - voras_beta/commons.py
 - ServerDevice
@@ -107,19 +111,19 @@
 - lib/src/const.ts
 - VoiceChangerWorkletNode
 - compilerOptions
-- sendTileStateUpdate
+- .closeConnection
 - lib/package.json
 - 001_AppStateProvider.tsx
-- jn
+- push
 - server control
 - server control
 - compilerOptions
 - compilerOptions
 - useAppState
 - compilerOptions
-- so
+- lo
 - tutorial_monitor_consept_ko.md
-- export2onnx.py
+- bc
 - voras_beta/utils.py
 - .__init__
 - Model Uploader
@@ -127,13 +131,11 @@
 - recorder/package.json
 - server control
 - demo/package.json
-- .health
 - useAppRoot
 - ServerConfigurator
 - ServerRestClient
 - Control
 - log_mel_spectrogram
-- Vs
 - convert.py
 - Model Setting
 - Model Setting
@@ -151,14 +153,13 @@
 - VoiceChangerWorkletProcessor
 - recorder/webpack.common.js
 - GUI の起動
-- uo
+- ko
 - Quick start
 - LoRALinear2d
 - onnxcrepe/core.py
 - Quick start
 - 起動まで
 - クイックスタート
-- oo
 - decode.py
 - ho
 - Start GUI
@@ -184,7 +185,7 @@
 - lib/webpack.common.js
 - Device Setting
 - Title
-- EmbedderProtocol
+- .registerObserver
 - Synthesizer
 - .remove_weight_norm
 - AWP
@@ -267,26 +268,20 @@
 - style-loader
 - @types/node
 - @types/wavesurfer.js
-- .actionUpdateWithRenegotiation
-- RVCr2
-- .of
-- .state
-- co
+- VoiceChangerParams
+- ni
 - model.py
-- Cs
+- .localStreamDescriptions
 - MockStream
 - generateModelSample
-- .updateIndex
+- ui
 - SUMMARY.md
-- addVideoTile
-- setupContentShareEvents
 - Whisper
 - config.py
 - MyCustomNamespace
-- SynthesizerTrnMsNSFsidNono
-- .process
+- i
 - je
-- .run
+- name
 
 ## God Nodes (most connected - your core abstractions)
 1. `i()` - 216 edges
@@ -307,10 +302,10 @@
   tutorials/images/RVC_GUI.png → tutorials/tutorial_rvc_ja_1_5_3_3.md
 - `AMD GPU Selection UI` --references--> `Realtime Voice Changer Client for RVC Tutorial (v1.5.3.13)`  [INFERRED]
   tutorials/images/amd_gpu_select.png → tutorials/tutorial_rvc_ja_latest.md
+- `ServerDeviceCallbacks` --inherits--> `Protocol`  [EXTRACTED]
+  server/voice_changer/Local/ServerDevice.py → client/lib/src/const.ts
 - `EmbedderProtocol` --inherits--> `Protocol`  [EXTRACTED]
   server/voice_changer/RVC/embedder/EmbedderProtocol.py → client/lib/src/const.ts
-- `Inferencer` --inherits--> `Protocol`  [EXTRACTED]
-  server/voice_changer/RVC/inferencer/Inferencer.py → client/lib/src/const.ts
 
 ## Import Cycles
 - 3-file cycle: `recorder/src/002_hooks/004_useAppStateStorage.ts -> recorder/src/002_hooks/013_useAudioControllerState.ts -> recorder/src/003_provider/AppSettingProvider.tsx -> recorder/src/002_hooks/004_useAppStateStorage.ts`
@@ -323,43 +318,51 @@
 - **Client Build and Demo Flow** — client_demo_index, client_demo_beatrice_female, client_demo_beatrice_male [INFERRED 0.85]
 - **VCClient Software Suite** — concept_vcclient, recorder_public_index, concept_beatrice [INFERRED 0.85]
 
-## Communities (295 total, 92 thin omitted)
+## Communities (294 total, 86 thin omitted)
 
 ### Community 0 - "index.js"
 Cohesion: 0.02
-Nodes (101): addToMinuteWindow(), an(), attendeeIdForStreamId(), Bn(), br(), buildSSRCToStreamMap(), buildStreamExternalUserIdMap(), buildStreamToAttendeeMap() (+93 more)
+Nodes (64): acquireAudioInputStream(), addToMinuteWindow(), attendeeIdForStreamId(), buildSSRCToStreamMap(), buildStreamExternalUserIdMap(), buildStreamToAttendeeMap(), buildTrackToStreamMap(), calculateScore() (+56 more)
 
 ### Community 1 - "e"
-Cohesion: 0.05
-Nodes (60): t(), t(), B, n(), clear(), consume(), cr(), D (+52 more)
+Cohesion: 0.08
+Nodes (57): al(), B, n(), clear(), consume(), o(), e(), d() (+49 more)
 
 ### Community 2 - "s"
-Cohesion: 0.04
-Nodes (4): acquireDisplayInputStream(), convertBpsToKbps(), onCPUWarning(), s()
+Cohesion: 0.05
+Nodes (3): acquireDisplayInputStream(), onCPUWarning(), s()
+
+### Community 3 - "Session Summary — 2026-10-01"
+Cohesion: 0.18
+Nodes (10): Attempts, Files Changed, Files NOT Changed, Final Solution (Attempt 3), Fix — `server/voice_changer/RVC/embedder/FairseqHubert.py`, Next Steps, Other Findings (No Action Taken), Problem (+2 more)
 
 ### Community 4 - "PitchExtractor"
-Cohesion: 0.09
-Nodes (12): CrepeOnnxPitchExtractor, PitchExtractorType, CrepePitchExtractor, DioPitchExtractor, FcpePitchExtractor, HarvestPitchExtractor, PitchExtractor, PitchExtractorManager (+4 more)
+Cohesion: 0.08
+Nodes (16): PipelineCreateException, Any, createPipeline(), _loadIndex(), RVCModelSlot, CrepeOnnxPitchExtractor, PitchExtractorType, CrepePitchExtractor (+8 more)
 
 ### Community 5 - "VoiceChangerV2"
 Cohesion: 0.06
-Nodes (22): Exception, DeviceChangingException, HalfPrecisionChangingException, NoModeLoadedException, NotEnoughDataExtimateF0, ONNXInputArgumentException, PipelineCreateException, PipelineNotInitializedException (+14 more)
+Nodes (22): Exception, DeviceCannotSupportHalfPrecisionException, DeviceChangingException, HalfPrecisionChangingException, NoModeLoadedException, NotEnoughDataExtimateF0, ONNXInputArgumentException, PipelineNotInitializedException (+14 more)
 
-### Community 7 - "m"
+### Community 6 - "c"
+Cohesion: 0.04
+Nodes (3): c(), i(), matchesConstraints()
+
+### Community 7 - "c"
 Cohesion: 0.03
-Nodes (33): As, Bs, ca(), concat(), da(), Ds, Es, fa() (+25 more)
+Nodes (26): As, Bs, bt(), Ds, Fs, generateSessionId(), Gs, Hs (+18 more)
 
 ### Community 8 - "VoiceChangerManager"
-Cohesion: 0.05
-Nodes (28): APIRoute, ASGIApp, Receive, Scope, Send, getFrontendPath(), compute_local_origins(), normalize_origins() (+20 more)
+Cohesion: 0.06
+Nodes (19): ASGIApp, Receive, Scope, Send, getFrontendPath(), compute_local_origins(), normalize_origins(), MMVC_Rest_Hello (+11 more)
 
-### Community 10 - "a"
-Cohesion: 0.04
-Nodes (86): ac(), al(), ao, bc(), be(), bo(), bt(), cc() (+78 more)
+### Community 10 - "xl"
+Cohesion: 0.07
+Nodes (32): bl(), cl(), Ct(), El(), eo, fi, Ge, hi() (+24 more)
 
 ### Community 11 - "rmvpe.py"
-Cohesion: 0.10
-Nodes (10): BiGRU, ConvBlockRes, Decoder, DeepUnet, E2E, Encoder, Intermediate, MelSpectrogram (+2 more)
+Cohesion: 0.09
+Nodes (11): BiGRU, ConvBlockRes, Decoder, DeepUnet, E2E, Encoder, Intermediate, MelSpectrogram (+3 more)
 
 ### Community 12 - "DeviceManager"
 Cohesion: 0.07
@@ -367,31 +370,27 @@ Nodes (25): Enum, EnumInferenceTypes, DeviceManager, object, Inferencer, Tensor,
 
 ### Community 13 - "VoiceChangerManager.py"
 Cohesion: 0.06
-Nodes (39): getSampleJsonAndModelIds(), RVCSampleMode, loadAllSlotInfo(), loadSlotInfo(), ModelSlot, ModelSlots, RVCModelSlot, saveSlotInfo() (+31 more)
+Nodes (38): APIRoute, getSampleJsonAndModelIds(), RVCSampleMode, loadAllSlotInfo(), loadSlotInfo(), ModelSlot, ModelSlots, RVCModelSlot (+30 more)
 
 ### Community 14 - ".run"
-Cohesion: 0.09
-Nodes (10): acquireVideoInputStream(), getLocalVideoTile(), getStatus(), pe(), realtimeSubscribeToSendDataMessage(), setAudioInput(), setPeer(), setTransceiverInput() (+2 more)
+Cohesion: 0.15
+Nodes (4): acquireVideoInputStream(), hasStartedLocalVideoTile(), hasVideoInput(), stopLocalVideoTile()
 
 ### Community 15 - "devDependencies"
 Cohesion: 0.07
 Nodes (29): devDependencies, autoprefixer, @babel/plugin-transform-runtime, @babel/preset-typescript, copy-webpack-plugin, npm-run-all, postcss-loader, rimraf (+21 more)
 
-### Community 16 - "i"
-Cohesion: 0.06
-Nodes (18): audioOutputDidChange(), bindAudioDevice(), bindAudioElement(), bindAudioMix(), bindAudioStream(), create(), destroyInputMediaStreamAndBuffers(), discardDevicePixelRatioMonitorIfNotNeeded() (+10 more)
-
 ### Community 17 - "a"
-Cohesion: 0.06
-Nodes (5): a(), addAudioMixObserver(), getCurrentMeetingAudioStream(), removeAudioMixObserver(), unbindAudioElement()
+Cohesion: 0.05
+Nodes (5): a(), create(), localVideoTransceiver(), numberOfParticipants(), numberOfVideoPublishingParticipantsExcludingSelf()
 
-### Community 19 - "he"
-Cohesion: 0.07
-Nodes (3): he, once(), replaceAudioTrack()
+### Community 19 - ".default"
+Cohesion: 0.05
+Nodes (10): chooseCaptureAndEncodeParameters(), chooseSubscriptions(), createWithLimit(), enableSimulcastForContentShare(), getMidForStreamId(), he, makeTile(), once() (+2 more)
 
-### Community 20 - "Fs"
-Cohesion: 0.15
-Nodes (3): Fs, Us, zr()
+### Community 20 - "m"
+Cohesion: 0.09
+Nodes (7): concat(), Ir(), Is, Ns, Ps, Ts, m()
 
 ### Community 22 - "Steps up to startup"
 Cohesion: 0.04
@@ -399,55 +398,59 @@ Nodes (48): Analyzer(Experimental), Audio Input, Audio Output, buf, client selec
 
 ### Community 23 - ".trace"
 Cohesion: 0.04
-Nodes (65): addDeviceChangeObserver(), addObserver(), applyLocalMuteOverride(), chooseAudioOutput(), chooseVideoInputQuality(), createAnalyserNodeForAudioInput(), demoteFromPrimaryMeeting(), getAllRemoteVideoTiles() (+57 more)
+Nodes (67): addContentShareObserver(), addDeviceChangeObserver(), addObserver(), applyLocalMuteOverride(), bindVideoElement(), captureVideoTile(), chooseAudioOutput(), chooseVideoInputQuality() (+59 more)
 
 ### Community 24 - "ft"
-Cohesion: 0.13
-Nodes (14): Aa(), bl(), dt(), et(), ft(), It(), Ma(), Va() (+6 more)
+Cohesion: 0.11
+Nodes (16): Aa(), dt(), et(), ft(), It(), Ka(), Ma(), oo (+8 more)
 
 ### Community 25 - "Model Uploader"
 Cohesion: 0.04
 Nodes (48): Analyzer(Experimental), AudioInput, AudioOutput, buf, Converter Setting, Default Tune, Destination Speaker Id, Device Setting (+40 more)
 
 ### Community 26 - "t"
-Cohesion: 0.13
-Nodes (3): t(), s(), t()
+Cohesion: 0.09
+Nodes (7): Ae, Le(), re(), t(), s(), t(), Ve()
 
 ### Community 27 - "dependencies"
 Cohesion: 0.06
 Nodes (35): fft.js, jszip, microphone-stream, process, react-error-boundary, readable-stream, dependencies, amazon-chime-sdk-js (+27 more)
 
 ### Community 28 - "Embedder"
-Cohesion: 0.14
-Nodes (14): Embedder, device, EmbedderType, EmbedderManager, device, EmbedderType, FairseqContentvec, device (+6 more)
+Cohesion: 0.10
+Nodes (17): Embedder, device, EmbedderType, EmbedderManager, device, EmbedderType, EmbedderProtocol, device (+9 more)
 
 ### Community 29 - "infer_pack/models.py"
 Cohesion: 0.11
-Nodes (11): TextEncoder, Encoder, sequence_mask(), Generator, GeneratorNSF, PosteriorEncoder, ResidualCouplingBlock, TextEncoder256 (+3 more)
+Nodes (13): TextEncoder, Generator, GeneratorNSF, PosteriorEncoder, ResidualCouplingBlock, TextEncoder256, TextEncoder768, SynthesizerTrnMs256NSFsid_nono_ONNX (+5 more)
 
 ### Community 31 - "Configuration"
 Cohesion: 0.12
 Nodes (16): Advanced Setting, AUDIO, CHUNK (Input Chunk Num), Configuration, EXTRA (Extra Data Length), F0 Det (F0 Estimator), GPU, input (+8 more)
 
 ### Community 32 - ".__init__"
-Cohesion: 0.08
-Nodes (14): Conv1d, get_padding(), init_weights(), DiscriminatorP, DiscriminatorS, MultiPeriodDiscriminator, MultiPeriodDiscriminatorV2, Definition of sine generator SineGen(samp_rate, harmonic_num = 0, sine_amp =… (+6 more)
+Cohesion: 0.11
+Nodes (8): Encoder, DiscriminatorP, DiscriminatorS, MultiPeriodDiscriminator, MultiPeriodDiscriminatorV2, Definition of sine generator SineGen(samp_rate, harmonic_num = 0, sine_amp =…, sine_tensor, uv = forward(f0) input F0: tensor(batchsize=1, length, dim=1) f0…, SineGen
+
+### Community 33 - "Conv1d"
+Cohesion: 0.14
+Nodes (7): Conv1d, get_padding(), init_weights(), SourceModule for hn-nsf SourceModule(sampling_rate, harmonic_num=0,…, SourceModuleHnNSF, ResBlock1, ResBlock2
 
 ### Community 34 - ".updateRemoteVideosFromLastVideosToReceive"
-Cohesion: 0.12
-Nodes (17): attendeeIdForTrack(), debugDumpTransceivers(), externalUserIdForTrack(), getMidForStreamId(), getVideoTileForAttendeeId(), groupIdForStreamId(), haveVideoTileForAttendeeId(), overrideStreamIdMappings() (+9 more)
+Cohesion: 0.07
+Nodes (24): addVideoTile(), attendeeIdForTrack(), audioVideoDidStart(), createDevicePixelRatioMonitorIfNeeded(), externalUserIdForTrack(), findOrCreateLocalVideoTile(), getAllVideoTiles(), getLocalVideoTile() (+16 more)
 
 ### Community 35 - "MultiHeadAttention"
 Cohesion: 0.12
-Nodes (12): Decoder, FFN, MultiHeadAttention, x: decoder input h: encoder output, x: [b, h, l, m] y: [h or 1, m, d] ret: [b, h, l, d], x: [b, h, l, d] y: [h or 1, m, d] ret: [b, h, l, m], x: [b, h, l, 2*l-1] ret: [b, h, l, l], x: [b, h, l, l] ret: [b, h, l, 2*l-1] (+4 more)
+Nodes (11): Decoder, FFN, MultiHeadAttention, x: decoder input h: encoder output, x: [b, h, l, m] y: [h or 1, m, d] ret: [b, h, l, d], x: [b, h, l, d] y: [h or 1, m, d] ret: [b, h, l, m], x: [b, h, l, 2*l-1] ret: [b, h, l, l], x: [b, h, l, l] ret: [b, h, l, 2*l-1] (+3 more)
 
 ### Community 36 - "useAppState"
 Cohesion: 0.18
 Nodes (14): useAppState(), Portrait(), PortraitProps, TuningArea(), TuningAreaProps, IndexArea(), IndexAreaProps, SpeakerArea() (+6 more)
 
-### Community 37 - "Ae"
-Cohesion: 0.30
-Nodes (4): Ae, Le(), re(), Ve()
+### Community 37 - "_Stub"
+Cohesion: 0.12
+Nodes (8): _FairseqPickleModule, _load_fairseq_checkpoint_without_fairseq(), Generic stand-in for any fairseq / omegaconf class that gets pickled into the…, # NOTE: fairseq checkpoints store `cfg` as an omegaconf.DictConfig., Drop-in replacement for the `pickle` module that torch.serialization uses…, Load a fairseq-format .pt checkpoint without fairseq being installed.…, _Stub, Unpickler
 
 ### Community 38 - "dependencies"
 Cohesion: 0.07
@@ -457,21 +460,17 @@ Nodes (29): @alexanderolsen/libsamplerate-js, dependencies, @alexanderolsen/libs
 Cohesion: 0.15
 Nodes (14): addToCatalog(), catalog, initialize(), HeaderAreaProps, ModelSlotArea(), ModelSlotAreaProps, SortTypes, CharacterAreaProps (+6 more)
 
-### Community 40 - "i"
-Cohesion: 0.07
-Nodes (5): addEventListener(), i(), protocols(), removeEventListener(), url()
-
 ### Community 41 - "$o"
-Cohesion: 0.08
-Nodes (3): getLogLevel(), $o(), setLogLevel()
+Cohesion: 0.04
+Nodes (12): addEventListener(), createUrlWithParams(), debug(), error(), info(), log(), $o(), removeEventListener() (+4 more)
 
 ### Community 42 - "RVC-Only Refactor Plan"
 Cohesion: 0.13
 Nodes (14): 1. `server/voice_changer/VoiceChangerManager.py`, 2. `server/data/ModelSlot.py`, 3. `server/const.py`, 4. `client/lib/src/const.ts` (Frontend TypeScript), 5. `client/demo/src/` (Frontend UI Components), Backend — Delete These Folders Entirely, Code Changes Required, Notes (+6 more)
 
 ### Community 43 - "MMVC_Rest_Fileuploader"
-Cohesion: 0.10
-Nodes (11): MMVC_Rest_Fileuploader, UploadFile, concat_file_chunks(), UploadFile, sanitize_filename(), upload_file(), RVCModelSlot, RVCModelSlotGenerator (+3 more)
+Cohesion: 0.08
+Nodes (16): Protocol, MMVC_Rest_Fileuploader, UploadFile, concat_file_chunks(), UploadFile, sanitize_filename(), upload_file(), export2onnx() (+8 more)
 
 ### Community 44 - "devDependencies"
 Cohesion: 0.09
@@ -497,13 +496,13 @@ Nodes (29): AnimationTypes, HeaderButtonProps, GuiStateAndMethod, GuiStateContex
 Cohesion: 0.12
 Nodes (19): ClientSetting, INDEXEDDB_DB_APP_NAME, INDEXEDDB_DB_NAME, VoiceChangerClientSetting, ClientState, InitialPerformanceData, PerformanceData, useClient() (+11 more)
 
-### Community 52 - ".removeObserver"
-Cohesion: 0.20
-Nodes (3): addContentShareObserver(), realtimeUnsubscribeFromSendDataMessage(), removeContentShareObserver()
+### Community 52 - ".run"
+Cohesion: 0.11
+Nodes (9): close(), getStatus(), realtimeSubscribeToAttendeeIdPresence(), realtimeUnsubscribeFromSendDataMessage(), realtimeUnsubscribeToAttendeeIdPresence(), setPeer(), startContentShare(), startContentShareFromScreenCapture() (+1 more)
 
-### Community 53 - "n"
-Cohesion: 0.06
-Nodes (24): asCanvasImageSource(), constructor(), createAudioNode(), createContentShareMeetingSessionConfigure(), debug(), destroy(), error(), frameReceived() (+16 more)
+### Community 53 - ".of"
+Cohesion: 0.07
+Nodes (30): asCanvasImageSource(), audioVideoDidStop(), canReconnect(), checkBrowserSupportAndFeatureConfiguration(), closeEventHandler(), constructor(), createContentShareMeetingSessionConfigure(), destroyInputMediaStreamAndBuffers() (+22 more)
 
 ### Community 54 - "README_ar.md"
 Cohesion: 0.12
@@ -513,9 +512,9 @@ Nodes (15): VCClient, إخلاء المسؤولية, استكشاف الأخطا
 Cohesion: 0.12
 Nodes (15): Bietet REST API, Danksagungen, Downloads und verwandte Links, Fehlerbehebung, Haftungsausschluss, Merkmale des VC Clients, Nutzungsbedingungen, Unterstützt mehrere Plattformen (+7 more)
 
-### Community 56 - ".equal"
-Cohesion: 0.13
-Nodes (5): hasStartedLocalVideoTile(), hasVideoInput(), setupLocalTransceivers(), trackIsVideoInput(), useTransceivers()
+### Community 56 - "updateVideoTransceivers"
+Cohesion: 0.18
+Nodes (11): debugDumpTransceivers(), groupIdForStreamId(), setupLocalTransceivers(), StreamIdsInSameGroup(), trackIsVideoInput(), transceiverIsVideo(), updateTransceivers(), updateTransceiverWithoutStop() (+3 more)
 
 ### Community 57 - "AppSettingProvider.tsx"
 Cohesion: 0.11
@@ -549,9 +548,9 @@ Nodes (15): Acknowledgments, REST API를 제공, VC Client의 특징, VCClient, 
 Cohesion: 0.20
 Nodes (16): MainScreen(), MainScreenProps, SampleDownloaderScreen(), SampleDownloaderScreenProps, FileUploaderScreen(), FileUploaderScreenProps, EditorScreen(), EditorScreenProps (+8 more)
 
-### Community 65 - "FairseqHubert.py"
-Cohesion: 0.17
-Nodes (8): Module, HubertModelWithFinalProj, _load_fairseq_checkpoint_without_fairseq(), device, Tensor, Load a fairseq-format checkpoint (.pt) without having fairseq installed.…, # NOTE: fairseq checkpoints store `cfg` as an omegaconf.DictConfig., Wraps a torchaudio HuBERT model and restores the `final_proj` linear layer that…
+### Community 65 - ".loadModel"
+Cohesion: 0.22
+Nodes (5): Module, HubertModelWithFinalProj, device, Tensor, Wraps a torchaudio HuBERT model and restores the `final_proj` linear layer that…
 
 ### Community 66 - "useAppSetting"
 Cohesion: 0.14
@@ -589,9 +588,9 @@ Nodes (15): VC Client的特点, VCClient, 下载和相关链接, 使用条款, �
 Cohesion: 0.17
 Nodes (3): ErrorBoundary, ErrorBoundaryProps, ErrorBoundaryState
 
-### Community 76 - "infer_pack/commons.py"
-Cohesion: 0.07
-Nodes (15): SynthesizerTrnMsNSFsid, add_timing_signal_1d(), cat_timing_signal_1d(), generate_path(), get_timing_signal_1d(), rand_gumbel(), rand_gumbel_like(), rand_slice_segments() (+7 more)
+### Community 76 - "rand_slice_segments"
+Cohesion: 0.08
+Nodes (8): SynthesizerTrnMsNSFsid, SynthesizerTrnMsNSFsidNono, rand_slice_segments(), slice_segments(), slice_segments2(), SynthesizerTrnMs256NSFsid, SynthesizerTrnMs256NSFsid_nono, SynthesizerTrnMs768NSFsid
 
 ### Community 77 - "dependencies"
 Cohesion: 0.12
@@ -613,13 +612,13 @@ Nodes (14): (1)(2)로 음성 상태 확인, (1)에서의 음성 상태가 이상
 Cohesion: 0.23
 Nodes (10): InternalCallback, VoiceChangerWorkletListener, DefaultClientSettng, WorkletNodeSetting, WorkletSetting, UseWorkletNodeSettingProps, WorkletNodeSettingState, UseWorkletSettingProps (+2 more)
 
-### Community 82 - ".default"
-Cohesion: 0.04
-Nodes (28): allStreams(), allVideoSendingSourcesExcludingSelf(), buildAttendeeToSortedStreamDescriptorMapExcludingSelf(), calculateOptimalReceiveSet(), chooseCaptureAndEncodeParameters(), chooseRemoteVideoSources(), chooseSubscriptions(), createWithLimit() (+20 more)
+### Community 82 - ".has"
+Cohesion: 0.06
+Nodes (25): allStreams(), allVideoSendingSourcesExcludingSelf(), buildAttendeeToSortedStreamDescriptorMapExcludingSelf(), calculateOptimalReceiveSet(), chooseRemoteVideoSources(), convertBpsToKbps(), di, get() (+17 more)
 
 ### Community 83 - "VoiceChangerModel"
-Cohesion: 0.07
-Nodes (9): Protocol, AudioInOut, ServerDeviceCallbacks, Any, AudioInOut, VoiceChangerIF, Any, AudioInOut (+1 more)
+Cohesion: 0.10
+Nodes (6): Any, AudioInOut, VoiceChangerIF, Any, AudioInOut, VoiceChangerModel
 
 ### Community 84 - "useGuiState"
 Cohesion: 0.21
@@ -633,6 +632,10 @@ Nodes (13): scripts, build:dev, build:prod, build:worklet:dev, build:worklet:pro
 Cohesion: 0.14
 Nodes (13): 1. Replace `fairseq` — Medium effort ⚠️ (Must Do), 2. Replace `pyworld` — Trivial effort ✅, 3. Upgrade `librosa` — Very low effort ✅, 4. Unpin `faiss-cpu` — Trivial effort ✅, 5. Unpin other packages — Trivial effort ✅, 6. Verify CUDA 12 + PyTorch — Low effort ✅, Notes, Phase 2 — Python 3.12 / Google Colab Compatibility Rework (+5 more)
 
+### Community 87 - "infer_pack/commons.py"
+Cohesion: 0.15
+Nodes (10): add_timing_signal_1d(), cat_timing_signal_1d(), generate_path(), get_timing_signal_1d(), rand_gumbel(), rand_gumbel_like(), duration: [b, 1, t_x] mask: [b, 1, t_y, t_x], Sample from the Gumbel distribution, protect from overflows. (+2 more)
+
 ### Community 88 - "voras_beta/modules.py"
 Cohesion: 0.14
 Nodes (6): get_padding(), GeneratorVoras, HarmonicEmbedder, Adaptive filter using snakebeta, SnakeFilter, WaveBlock
@@ -642,8 +645,8 @@ Cohesion: 0.13
 Nodes (16): _script_if_tracing, add_timing_signal_1d(), cat_timing_signal_1d(), convert_pad_shape(), fused_add_tanh_sigmoid_multiply(), generate_path(), get_timing_signal_1d(), init_weights() (+8 more)
 
 ### Community 90 - "ServerDevice"
-Cohesion: 0.11
-Nodes (11): checkSamplingRate(), dummy_callback(), list_audio_device(), ndarray, ServerAudioDevice, ndarray, ServerDevice, ServerDeviceSettings (+3 more)
+Cohesion: 0.10
+Nodes (11): checkSamplingRate(), dummy_callback(), list_audio_device(), ndarray, ServerAudioDevice, AudioInOut, ndarray, ServerDevice (+3 more)
 
 ### Community 91 - "TorchCrepe2.py"
 Cohesion: 0.14
@@ -665,10 +668,6 @@ Nodes (36): FileChunk, CrossFadeOverlapSize, DefaultServerSetting, DownSamplingM
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowSyntheticDefaultImports, declaration, esModuleInterop, forceConsistentCasingInFileNames, moduleResolution, noImplicitAny, noImplicitReturns (+11 more)
 
-### Community 97 - "sendTileStateUpdate"
-Cohesion: 0.15
-Nodes (9): bindVideoElement(), captureVideoTile(), getVideoTile(), pauseVideoTile(), registerObserver(), sendTileStateUpdate(), streamsPausedAtSource(), unbindVideoElement() (+1 more)
-
 ### Community 98 - "lib/package.json"
 Cohesion: 0.18
 Nodes (10): author, description, directories, lib, voice conversion, keywords, license, main (+2 more)
@@ -677,9 +676,9 @@ Nodes (10): author, description, directories, lib, voice conversion, keywords, l
 Cohesion: 0.13
 Nodes (15): useVCClient(), UseVCClientProps, VCClientState, f0ModelUrl, ModelSampleRateStr, noF0ModelUrl, useWebInfo(), UseWebInfoProps (+7 more)
 
-### Community 101 - "jn"
-Cohesion: 0.09
-Nodes (17): ai, ci, di, fi, hi(), ji(), jn, Jt() (+9 more)
+### Community 101 - "push"
+Cohesion: 0.06
+Nodes (50): t(), an(), t(), be(), Bn(), br(), ci, Cn() (+42 more)
 
 ### Community 102 - "server control"
 Cohesion: 0.18
@@ -705,17 +704,17 @@ Nodes (12): useAppState(), ExportController(), WaveSurferView(), powerToDb(), Me
 Cohesion: 0.09
 Nodes (22): compilerOptions, allowSyntheticDefaultImports, esModuleInterop, forceConsistentCasingInFileNames, isolatedModules, jsx, lib, moduleResolution (+14 more)
 
-### Community 108 - "so"
+### Community 108 - "lo"
 Cohesion: 0.09
-Nodes (11): Ar(), ea(), ja(), Ms, qa(), qo(), so, vo() (+3 more)
+Nodes (23): Ar(), bo(), ea(), Es, fl(), hl(), ja(), jo() (+15 more)
 
 ### Community 109 - "tutorial_monitor_consept_ko.md"
 Cohesion: 0.20
 Nodes (9): v.1.5.3.6 이전의 구성, v.1.5.3.7 이후의 구성, 두 번째, 모니터링 튜토리얼, 사용 방법, 예시, 주의 사항, 첫 번째 (+1 more)
 
-### Community 110 - "export2onnx.py"
-Cohesion: 0.18
-Nodes (7): export2onnx(), RVCModelSlot, SynthesizerTrnMs256NSFsid_nono_ONNX, SynthesizerTrnMs256NSFsid_ONNX, SynthesizerTrnMsNSFsid_webui_ONNX, SynthesizerTrnMsNSFsidNono_webui_ONNX, VoiceChangerParamsManager
+### Community 110 - "bc"
+Cohesion: 0.22
+Nodes (10): ac(), bc(), cc(), lc(), mc(), oc(), Ra(), rc() (+2 more)
 
 ### Community 112 - ".__init__"
 Cohesion: 0.21
@@ -736,10 +735,6 @@ Nodes (10): buf, download, export onnx, monitor, Operation, res, server control,
 ### Community 117 - "demo/package.json"
 Cohesion: 0.22
 Nodes (8): author, description, voice conversion, keywords, license, main, name, version
-
-### Community 118 - ".health"
-Cohesion: 0.28
-Nodes (5): health(), healthIfChanged(), healthy(), maximumHealth(), minimumHealth()
 
 ### Community 119 - "useAppRoot"
 Cohesion: 0.11
@@ -821,6 +816,10 @@ Nodes (9): CopyPlugin, HtmlWebpackPlugin, path, webpack, common, { merge }, path
 Cohesion: 0.33
 Nodes (6): GUI の起動, GUI 表示, Mac 版, Windows 版、, コンソール表示, リモート接続時の注意
 
+### Community 143 - "ko"
+Cohesion: 0.06
+Nodes (35): ao, ca(), ce(), cr(), da(), Do(), ec(), fa() (+27 more)
+
 ### Community 144 - "Quick start"
 Cohesion: 0.29
 Nodes (7): Configurable items, Converter Setting, Extra Data Length, GPU, InputChunk Num(128sample / chunk), Lab, Quick start
@@ -850,8 +849,8 @@ Cohesion: 0.24
 Nodes (10): _apply_weights(), argmax(), ndarray, Sample observations by taking the argmax, Sample observations using weighted sum near the argmax, Sample observations using viterbi decoding, Sample observations combining viterbi decoding and weighted argmax, viterbi() (+2 more)
 
 ### Community 152 - "ho"
-Cohesion: 0.09
-Nodes (5): ho, prepareWebSocketUrl(), readyState(), send(), startConnectingInternal()
+Cohesion: 0.06
+Nodes (7): co, Cs, ho, prepareWebSocketUrl(), readyState(), send(), startConnectingInternal()
 
 ### Community 153 - "Start GUI"
 Cohesion: 0.33
@@ -937,10 +936,6 @@ Nodes (4): Audio Input, Audio Output, Device Setting, output record
 Cohesion: 0.50
 Nodes (4): claer setting, re-select vc, reload, Title
 
-### Community 178 - "EmbedderProtocol"
-Cohesion: 0.29
-Nodes (3): EmbedderProtocol, device, Tensor
-
 ### Community 181 - "AWP"
 Cohesion: 0.28
 Nodes (3): AWP, Fast AWP https://www.kaggle.com/code/junkoda/fast-awp, Restore model parameter to correct position; AWP do not perturbe weights, it…
@@ -1009,17 +1004,21 @@ Nodes (4): piecewise_rational_quadratic_transform(), rational_quadratic_spline()
 Cohesion: 0.67
 Nodes (3): Beatrice Female Node Map, Beatrice Male Node Map, Voice Changer Client Demo
 
-### Community 272 - "RVCr2"
-Cohesion: 0.15
-Nodes (4): AudioInOut, RVCModelSlot, RVCr2, RVCSettings
+### Community 272 - "VoiceChangerParams"
+Cohesion: 0.10
+Nodes (10): merge_model(), RVCModelMerger, AudioInOut, RVCModelSlot, RVCr2, RVCSettings, ModelMerger, ModelMergerRequest (+2 more)
 
-### Community 273 - ".of"
-Cohesion: 0.15
-Nodes (5): audioVideoDidStop(), forEachContentShareObserver(), haveVideoTilesWithStreams(), pauseContentShare(), unpauseContentShare()
+### Community 273 - "ni"
+Cohesion: 0.50
+Nodes (4): ai, ii(), ni(), ti()
 
 ### Community 277 - "model.py"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (15): AudioEncoder, LayerNorm, Linear, ModelDimensions, MultiHeadAttention, Tensor, x : torch.Tensor, shape = (batch_size, n_mels, n_ctx) the mel spectrogram of…, x : torch.LongTensor, shape = (batch_size, <= n_ctx) the text tokens xa :… (+7 more)
+
+### Community 278 - ".localStreamDescriptions"
+Cohesion: 0.50
+Nodes (3): chooseEncodingParameters(), getQualityMapString(), wantsResubscribe()
 
 ### Community 280 - "generateModelSample"
 Cohesion: 0.53
@@ -1029,10 +1028,6 @@ Nodes (5): generateModelSample(), ModelSample, Any, ModelSamples, RVCModelSample
 Cohesion: 0.33
 Nodes (5): 1. Verified Fixes from Checkpoint 1, 2. Re-Checked `ANTIGRAVITY.md` and Discovered Remnants, 3. Overall State of Refactor, Backend, Frontend
 
-### Community 283 - "addVideoTile"
-Cohesion: 0.40
-Nodes (5): addVideoTile(), audioVideoDidStart(), createDevicePixelRatioMonitorIfNeeded(), findOrCreateLocalVideoTile(), startLocalVideoTile()
-
 ### Community 286 - "Whisper"
 Cohesion: 0.40
 Nodes (3): device, Whisper, Tensor
@@ -1041,23 +1036,27 @@ Nodes (3): device, Whisper, Tensor
 Cohesion: 0.43
 Nodes (7): DatasetMetadata, DatasetMetaItem, BaseModel, TrainConfig, TrainConfigData, TrainConfigModel, TrainConfigTrain
 
-### Community 303 - ".run"
+### Community 295 - "i"
 Cohesion: 0.08
-Nodes (12): acquireAudioInputStream(), baseCancel(), baseRun(), cancel(), close(), isSupported(), logAndThrow(), logDependencies() (+4 more)
+Nodes (16): addAudioMixObserver(), asCanvasElement(), audioOutputDidChange(), bindAudioDevice(), bindAudioElement(), bindAudioMix(), bindAudioStream(), getCurrentMeetingAudioStream() (+8 more)
+
+### Community 303 - "name"
+Cohesion: 0.12
+Nodes (6): baseCancel(), baseRun(), cancel(), isSupported(), logAndThrow(), name()
 
 ## Knowledge Gaps
-- **989 isolated node(s):** `buildAllDemo.sh script`, `build-voice-changer-js.sh script`, `name`, `version`, `description` (+984 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1757 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **92 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **996 isolated node(s):** `buildAllDemo.sh script`, `build-voice-changer-js.sh script`, `name`, `version`, `description` (+991 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1774 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **86 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `s()` connect `s` to `index.js`, `e`, `m`, `a`, `.withVideoLayersAllocationRtpHeaderExtension`, `.run`, `i`, `.state`, `.requiresDisablingH264Encoding`, `ft`, `.updateIndex`, `.hasChromiumWebRTC`, `.process`, `i`, `$o`, `.stringify`, `.run`, `n`, `.default`, `sendTileStateUpdate`?**
+- **Why does `s()` connect `s` to `index.js`, `e`, `c`, `.sort`, `.destroy`, `.run`, `a`, `.connectVideoStreamToVideoElement`, `.default`, `.mediaSections`, `.requiresDisablingH264Encoding`, `.withAudioMaxAverageBitrate`, `.trace`, `ft`, `.localStreamDescriptions`, `m`, `D`, `.handleIndexFrame`, `.getBlurAmount`, `.updateRemoteVideosFromLastVideosToReceive`, `i`, `i`, `$o`, `.stringify`, `name`, `.registerObserver`, `.run`, `.of`, `.has`, `push`, `.startAudioInputTask`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `Protocol` connect `VoiceChangerModel` to `PitchExtractor`, `VoiceChangerManager`, `MMVC_Rest_Fileuploader`, `DeviceManager`, `EmbedderProtocol`, `lib/src/const.ts`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
-- **Why does `R` connect `R` to `index.js`, `e`, `.updateRemoteVideosFromLastVideosToReceive`, `i`, `a`, `.run`, `i`, `.of`, `.default`, `.create`, `n`, `.health`, `.equal`, `t`, `.handleSupportedVideoReceiveCodecIntersection`, `setupContentShareEvents`, `.remove`?**
+- **Why does `Protocol` connect `MMVC_Rest_Fileuploader` to `PitchExtractor`, `DeviceManager`, `VoiceChangerParams`, `VoiceChangerModel`, `ServerDevice`, `Embedder`, `lib/src/const.ts`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `R` connect `R` to `index.js`, `e`, `.updateRemoteVideosFromLastVideosToReceive`, `push`, `c`, `i`, `i`, `.sort`, `name`, `D`, `.has`, `.default`, `.of`, `updateVideoTransceivers`, `t`, `.handleIndexFrame`, `.updateClientSendingRate`?**
   _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Are the 31 inferred relationships involving `i()` (e.g. with `a()` and `an()`) actually correct?**
   _`i()` has 31 INFERRED edges - model-reasoned connections that need verification._

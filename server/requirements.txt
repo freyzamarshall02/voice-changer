@@ -11,8 +11,9 @@ pyOpenSSL
 numpy
 numba
 tqdm
-# fairseq REMOVED — replaced with direct torch.load + torchaudio HuBERT loader
-torchaudio
+# fairseq REMOVED — replaced with transformers HubertModel loader
+transformers>=4.27.0
+# torchaudio REMOVED — no longer needed after FairseqHubert rewrite
 pydantic
 resampy
 python-socketio
