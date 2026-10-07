@@ -25,7 +25,6 @@ def _preload_torch_cuda() -> None:
         import ctypes.util
         import glob
         import os
-        import sysconfig
 
         import torch  # noqa: PLC0415 — intentional early import
 
@@ -45,11 +44,10 @@ def _preload_torch_cuda() -> None:
         torch_lib = os.path.join(os.path.dirname(torch.__file__), "lib")
         _add(sorted(glob.glob(os.path.join(torch_lib, "libcudart.so*")), reverse=True))
 
-        # 2. site-packages/nvidia/cuda_runtime/lib/ — PyTorch 2.x+ nvidia wheels
-        site_lib = sysconfig.get_path("purelib") or ""
-        _add(sorted(glob.glob(os.path.join(site_lib, "nvidia", "cuda_runtime", "lib", "libcudart.so*")), reverse=True))
-
-        # 3. System CUDA installation (typical on Colab: /usr/local/cuda/lib64/)
+        # 2. System CUDA installation (typical on Colab: /usr/local/cuda/lib64/)
+        #    NOTE: nvidia/cuda_runtime wheels intentionally skipped — they ship
+        #    libcudart.so.12 even on CUDA 13 environments, and preloading the
+        #    wrong major version makes ORT worse, not better.
         for cuda_dir in sorted(glob.glob("/usr/local/cuda*/"), reverse=True):
             _add(sorted(glob.glob(os.path.join(cuda_dir, "lib64", "libcudart.so*")), reverse=True))
 
