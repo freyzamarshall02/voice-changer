@@ -59,4 +59,13 @@ export class ServerConfigurator {
     updateModelInfo = async (slot: number, key: string, val: string) => {
         return this.restClient.updateModelInfo(slot, key, val);
     };
+
+    downloadModelFromUrl = async (url: string, slot: number) => {
+        return this.restClient.downloadModelFromUrl(url, slot);
+    };
+
+    getUrlDownloadStatus = async (slot: number) => {
+        return this.restClient.getUrlDownloadStatus(slot);
+    };
 }
+

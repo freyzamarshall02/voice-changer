@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppState } from "../../001_provider/001_AppStateProvider";
-import { ModelFileKind, ModelUploadSetting, VoiceChangerType, fileSelector } from "@dannadori/voice-changer-client-js";
+import { ModelFileKind, ModelUploadSetting, fileSelector } from "@dannadori/voice-changer-client-js";
 import { useMessageBuilder } from "../../hooks/useMessageBuilder";
 import { ModelSlotManagerDialogScreen } from "./904_ModelSlotManagerDialog";
 import { checkExtention, trimfileName } from "../../utils/utils";
@@ -12,11 +12,22 @@ export type FileUploaderScreenProps = {
     backToSlotManager: () => void;
 };
 
+type SubScreen = "FileUploader" | "URLUploader";
+
 export const FileUploaderScreen = (props: FileUploaderScreenProps) => {
     const { serverSetting } = useAppState();
-    const [voiceChangerType, setVoiceChangerType] = useState<VoiceChangerType>("RVC");
+    // Always RVC — the VoiceChangerType dropdown has been removed
+    const voiceChangerType = "RVC";
     const [uploadSetting, setUploadSetting] = useState<ModelUploadSetting>();
     const messageBuilderState = useMessageBuilder();
+
+    // URL uploader state
+    const [subScreen, setSubScreen] = useState<SubScreen>("FileUploader");
+    const [urlInput, setUrlInput] = useState<string>("");
+    const [urlUploadStatus, setUrlUploadStatus] = useState<"idle" | "downloading">("idle");
+    const [urlProgress, setUrlProgress] = useState<number>(0);
+    const [urlError, setUrlError] = useState<string>("");
+    const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useMemo(() => {
         messageBuilderState.setMessage(__filename, "header_message", { ja: "ファイルをアップロードしてください. 対象：", en: "Upload Files for " });
@@ -43,15 +54,139 @@ export const FileUploaderScreen = (props: FileUploaderScreenProps) => {
             files: [],
             params: {},
         });
-    }, [props.targetIndex, voiceChangerType]);
+        // Reset sub-screen when target slot changes
+        setSubScreen("FileUploader");
+        setUrlInput("");
+        setUrlError("");
+        setUrlProgress(0);
+        setUrlUploadStatus("idle");
+    }, [props.targetIndex]);
+
+    // Clear the polling interval when the component unmounts
+    useEffect(() => {
+        return () => {
+            if (pollRef.current !== null) {
+                clearInterval(pollRef.current);
+            }
+        };
+    }, []);
+
+    const handleUrlUpload = async () => {
+        if (!urlInput.trim()) return;
+        setUrlUploadStatus("downloading");
+        setUrlProgress(0);
+        setUrlError("");
+        await serverSetting.downloadModelFromUrl(urlInput.trim(), props.targetIndex);
+        pollRef.current = setInterval(async () => {
+            const data = await serverSetting.getUrlDownloadStatus(props.targetIndex);
+            if (!data) return;
+            setUrlProgress(data.progress);
+            if (data.status === "done") {
+                clearInterval(pollRef.current!);
+                pollRef.current = null;
+                setUrlUploadStatus("idle");
+                props.backToSlotManager();
+            } else if (data.status === "error") {
+                clearInterval(pollRef.current!);
+                pollRef.current = null;
+                setUrlUploadStatus("idle");
+                setUrlError(data.msg || "An unexpected error occurred. Check server logs.");
+            }
+        }, 500);
+    };
+
 
     const screen = useMemo(() => {
         if (props.screen != "FileUploader") {
             return <></>;
         }
 
+        // ── URL Uploader sub-screen ───────────────────────────────────────────
+        if (subScreen === "URLUploader") {
+            return (
+                <div className="dialog-frame">
+                    <div className="dialog-title">File Uploader</div>
+                    <div className="dialog-fixed-size-content">
+                        <div className="file-uploader-header">
+                            Upload Model via URL
+                            <span
+                                onClick={() => {
+                                    if (urlUploadStatus !== "downloading") {
+                                        setSubScreen("FileUploader");
+                                        setUrlError("");
+                                    }
+                                }}
+                                className="file-uploader-header-button"
+                            >
+                                &lt;&lt;{messageBuilderState.getMessage(__filename, "back")}
+                            </span>
+                        </div>
 
+                        <div className="file-uploader-file-select-container">
+                            <div style={{ marginBottom: "8px", padding: "8px", background: "#f0f4ff", borderRadius: "4px", fontSize: "0.85em" }}>
+                                ℹ️ <strong>Supported sources:</strong>
+                                <ul style={{ margin: "4px 0 0 16px", padding: 0 }}>
+                                    <li>Google Drive</li>
+                                    <li>HuggingFace</li>
+                                    <li>Pixeldrain</li>
+                                </ul>
+                            </div>
 
+                            <div className="file-uploader-file-select-row">
+                                <div className="file-uploader-file-select-row-label">URL:</div>
+                                <input
+                                    type="text"
+                                    value={urlInput}
+                                    onChange={(e) => setUrlInput(e.target.value)}
+                                    placeholder="Paste model URL here…"
+                                    disabled={urlUploadStatus === "downloading"}
+                                    style={{ flex: 1, padding: "4px 8px", borderRadius: "4px", border: "1px solid #ccc" }}
+                                />
+                            </div>
+
+                            {urlUploadStatus === "downloading" && (
+                                <div style={{ marginTop: "12px" }}>
+                                    <div style={{ background: "#e0e0e0", borderRadius: "4px", height: "12px", overflow: "hidden" }}>
+                                        <div
+                                            style={{
+                                                background: "#4a90d9",
+                                                width: `${urlProgress}%`,
+                                                height: "100%",
+                                                transition: "width 0.3s",
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{ textAlign: "center", fontSize: "0.85em", marginTop: "4px" }}>
+                                        Downloading… {urlProgress}%
+                                    </div>
+                                </div>
+                            )}
+
+                            {urlError && (
+                                <div style={{ marginTop: "10px", color: "#c0392b", fontSize: "0.9em" }}>
+                                    ❌ Failed: {urlError}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="file-uploader-file-select-upload-button-container">
+                            <div
+                                className="file-uploader-file-select-upload-button"
+                                onClick={() => {
+                                    if (urlUploadStatus !== "downloading") {
+                                        handleUrlUpload();
+                                    }
+                                }}
+                            >
+                                {urlUploadStatus === "downloading" ? `Downloading… (${urlProgress}%)` : "Upload via URL"}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ── Main File Uploader screen ─────────────────────────────────────────
         const checkModelSetting = (setting: ModelUploadSetting) => {
             const enough = !!setting.files.find((x) => {
                 return x.kind == "rvcModel";
@@ -91,18 +226,16 @@ export const FileUploaderScreen = (props: FileUploaderScreenProps) => {
             );
         };
 
-        const generateFileRowsByVCType = (vcType: VoiceChangerType) => {
-            const rows: JSX.Element[] = [];
-            rows.push(generateFileRow(uploadSetting!, "Model", "rvcModel", ["pth", "onnx"]));
-            rows.push(generateFileRow(uploadSetting!, "Index", "rvcIndex", ["index", "bin"]));
-            return rows;
-        };
+        const fileRows = [
+            generateFileRow(uploadSetting!, "Model", "rvcModel", ["pth", "onnx"]),
+            generateFileRow(uploadSetting!, "Index", "rvcIndex", ["index", "bin"]),
+        ];
 
-        const fileRows = generateFileRowsByVCType(voiceChangerType);
+        const buttonLabel =
+            serverSetting.uploadProgress == 0
+                ? messageBuilderState.getMessage(__filename, "upload")
+                : messageBuilderState.getMessage(__filename, "uploading") + `(${serverSetting.uploadProgress.toFixed(1)}%)`;
 
-        // appState.serverSetting.uploadProgress == 0 ? `loading model...(wait about 20sec)` : `processing.... ${appState.serverSetting.uploadProgress.toFixed(1)}%` : ""
-
-        const buttonLabel = serverSetting.uploadProgress == 0 ? messageBuilderState.getMessage(__filename, "upload") : messageBuilderState.getMessage(__filename, "uploading") + `(${serverSetting.uploadProgress.toFixed(1)}%)`;
         return (
             <div className="dialog-frame">
                 <div className="dialog-title">File Uploader</div>
@@ -118,7 +251,6 @@ export const FileUploaderScreen = (props: FileUploaderScreenProps) => {
                             &lt;&lt;{messageBuilderState.getMessage(__filename, "back")}
                         </span>
                     </div>
-
 
                     <div className="file-uploader-file-select-container">{fileRows}</div>
                     <div className="file-uploader-file-select-upload-button-container">
@@ -143,11 +275,21 @@ export const FileUploaderScreen = (props: FileUploaderScreenProps) => {
                         >
                             {buttonLabel}
                         </div>
+                        <div
+                            className="file-uploader-file-select-upload-button"
+                            onClick={() => {
+                                setSubScreen("URLUploader");
+                                setUrlError("");
+                            }}
+                            style={{ marginTop: "8px" }}
+                        >
+                            Upload Model via URL
+                        </div>
                     </div>
                 </div>
             </div>
         );
-    }, [props.screen, props.targetIndex, voiceChangerType, uploadSetting, serverSetting.uploadModel, serverSetting.uploadProgress]);
+    }, [props.screen, props.targetIndex, uploadSetting, serverSetting.uploadModel, serverSetting.uploadProgress, subScreen, urlInput, urlUploadStatus, urlProgress, urlError]);
 
     return screen;
 };

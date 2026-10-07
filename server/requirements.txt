@@ -6,6 +6,7 @@
 wheel
 setuptools
 requests
+gdown
 uvicorn
 pyOpenSSL
 numpy

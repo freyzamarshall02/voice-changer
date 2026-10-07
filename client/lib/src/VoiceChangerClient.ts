@@ -324,6 +324,14 @@ export class VoiceChangerClient {
         return this.configurator.uploadAssets(params);
     };
 
+    downloadModelFromUrl = (url: string, slot: number) => {
+        return this.configurator.downloadModelFromUrl(url, slot);
+    };
+
+    getUrlDownloadStatus = (slot: number) => {
+        return this.configurator.getUrlDownloadStatus(slot);
+    };
+
     //##  Worklet ##//
     configureWorklet = (setting: WorkletSetting) => {
         this.vcInNode.configure(setting);

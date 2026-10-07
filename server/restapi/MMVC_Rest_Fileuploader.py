@@ -32,6 +32,8 @@ class MMVC_Rest_Fileuploader:
         self.router.add_api_route("/update_model_default", self.post_update_model_default, methods=["POST"])
         self.router.add_api_route("/update_model_info", self.post_update_model_info, methods=["POST"])
         self.router.add_api_route("/upload_model_assets", self.post_upload_model_assets, methods=["POST"])
+        self.router.add_api_route("/download_model_url", self.post_download_model_url, methods=["POST"])
+        self.router.add_api_route("/download_model_url_status", self.get_download_model_url_status, methods=["GET"])
 
     def post_upload_file(self, file: UploadFile = File(...), filename: str = Form(...)):
         try:
@@ -141,3 +143,22 @@ class MMVC_Rest_Fileuploader:
             return JSONResponse(content=json_compatible_item_data)
         except Exception as e:
             print("[Voice Changer] post_update_model_info ex:", e)
+
+    def post_download_model_url(self, url: str = Form(...), slot: int = Form(...)):
+        """Kick off a background model download from a URL and return immediately."""
+        try:
+            self.voiceChangerManager.download_model_from_url(url, slot)
+            return JSONResponse(content={"status": "OK", "msg": "Download started"})
+        except Exception as e:
+            print("[Voice Changer] post_download_model_url ex:", e)
+            return JSONResponse(content={"status": "ERROR", "msg": str(e)}, status_code=500)
+
+    def get_download_model_url_status(self, slot: int):
+        """Return the current download progress for a given slot."""
+        try:
+            status = self.voiceChangerManager.get_url_download_status(slot)
+            return JSONResponse(content=status)
+        except Exception as e:
+            print("[Voice Changer] get_download_model_url_status ex:", e)
+            return JSONResponse(content={"progress": 0, "status": "error", "msg": str(e)}, status_code=500)
+

@@ -77,6 +77,8 @@ export type ServerSettingState = {
     name: ModelAssetName,
     file: File
   ) => Promise<void>;
+  downloadModelFromUrl: (url: string, slot: number) => Promise<void>;
+  getUrlDownloadStatus: (slot: number) => Promise<{ progress: number; status: string; msg: string }>;
 };
 
 export const useServerSetting = (
@@ -238,6 +240,16 @@ export const useServerSetting = (
     return serverInfo;
   };
 
+  const downloadModelFromUrl = async (url: string, slot: number) => {
+    if (!props.voiceChangerClient) return;
+    await props.voiceChangerClient.downloadModelFromUrl(url, slot);
+  };
+
+  const getUrlDownloadStatus = async (slot: number) => {
+    if (!props.voiceChangerClient) return { progress: 0, status: "idle", msg: "" };
+    return props.voiceChangerClient.getUrlDownloadStatus(slot);
+  };
+
   return {
     serverSetting,
     updateServerSettings,
@@ -251,5 +263,7 @@ export const useServerSetting = (
     updateModelDefault,
     updateModelInfo,
     uploadAssets,
+    downloadModelFromUrl,
+    getUrlDownloadStatus,
   };
 };

@@ -1,196 +1,216 @@
-# Fix Plan — HuBERT Embedder (transformers-based, Applio approach)
+# Plan: Add "Upload Model via URL" to Voice Changer
 
-> **Status:** Ready to implement
-> **Reference:** `/workspaces/codespaces-blank/Applio/rvc/lib/utils.py` + `rvc/realtime/pipeline.py`
+## Overview
 
----
-
-## Root Cause
-
-The error logs show in `/workspaces/codespaces-blank/voice-changer/errorlogs.txt`:
-
-```
-TypeError: '_Stub' object is not callable
-RuntimeError: [Voice Changer][HuBERT] Failed to load checkpoint 'pretrain/hubert_base.pt': '_Stub' object is not callable
-```
-
-### Why the current code breaks
-
-`FairseqHubert.py` uses a `_Stub` / `_FairseqPickleModule` pickle hack to load a fairseq `.pt`
-checkpoint without fairseq installed. This worked on Python 3.12 but **breaks on Python 3.13**:
-Python 3.13 changed how pickle reconstructs objects — it calls the registered class **directly as
-a callable with positional arguments**. Our `_Stub.__init__` accepted `*args` but the class itself
-was not callable in that context, raising `TypeError: '_Stub' object is not callable`.
-
-No amount of patching `_Stub` can fix this cleanly. The root problem is the file format itself:
-fairseq `.pt` checkpoints embed fairseq/omegaconf class references in their pickle stream.
+Add a URL-based model download feature to the voice-changer File Uploader modal. The user pastes a Google Drive, HuggingFace, or Pixeldrain URL and the server downloads the model directly into the correct slot — mirroring Applio's `model_download_pipeline` pattern.
 
 ---
 
-## Solution — Copy Applio's Approach Exactly
+## UX Flow
 
-Applio solved this cleanly. Their code in `rvc/lib/utils.py` and `rvc/realtime/pipeline.py`:
+```
+ModelSlotManagerDialog (Main)
+    → click upload icon on a slot
+    ↓
+FileUploader modal            ← MODIFIED
+    - Remove: VoiceChangerType dropdown (always RVC now)
+    - Keep:   Model: [select file]
+              Index: [select file]
+              [upload] button (existing file-upload path)
+    - Add:    [Upload Model via URL] button (new)
+    ↓ click "Upload Model via URL"
+URLUploader sub-screen (NEW, inside same modal)
+    - Info banner: "Supported: Google Drive, HuggingFace, Pixeldrain"
+    - Input:  URL text box
+    - Buttons: [Upload via URL]   [<< back]
+    ↓ click "Upload via URL"
+    - Show inline progress: "Downloading... 42%"
+    - On success → auto-close → return to ModelSlotConfiguration (Main)
+    - On error   → inline error banner: "Failed to upload model. <human-readable reason>"
+```
 
-1. Defines `HubertModelWithFinalProj(HubertModel)` — subclasses `transformers.HubertModel`, adds `final_proj`
-2. Calls `HubertModelWithFinalProj.from_pretrained(dir_path)` — loads from a HuggingFace directory
-3. In inference: `model(feats)["last_hidden_state"]` then applies `final_proj` only for v1
+---
 
-| | Old (broken) | New (Applio-style) |
+## Changes Required
+
+### 1. Backend — New `UrlModelDownloader.py`
+
+**File:** `server/downloader/UrlModelDownloader.py` (NEW)
+
+Mirrors Applio's model_download.py logic, adapted for voice-changer's slot system.
+
+```
+download_model_from_url(url, slot, model_dir, progress_callback)
+    ├─ detect host:
+    │   ├─ drive.google.com  → gdown.download(url)
+    │   ├─ huggingface.co
+    │   │   ├─ /blob/ or /resolve/ → replace /blob/→/resolve/ → requests.get(stream)
+    │   │   └─ /tree/main          → scrape page for .zip → requests.get(stream)
+    │   ├─ pixeldrain.com    → pixeldrain.com/u/ID → pixeldrain.com/api/file/ID?download
+    │   └─ else              → raise ValueError("Unsupported host.")
+    ├─ stream to logs/zips/<filename>, update progress_callback(0-100)
+    ├─ if .zip  → zipfile.extractall → model_dir/<slot>/
+    │              clean_extracted_files() (flatten subfolder, rename .pth/.index)
+    ├─ if .pth/.onnx/.index → move directly to model_dir/<slot>/
+    ├─ RVCModelSlotGenerator.loadModel(params)
+    └─ modelSlotManager.save_model_slot(slot, slotInfo)
+```
+
+**Error handling — human-readable, NO traceback in logs:**
+
+| Condition | Log (logger.error) | Client msg |
 |---|---|---|
-| Checkpoint | `pretrain/hubert_base.pt` — fairseq pickle | `pretrain/contentvec/` — HF dir (`config.json` + `pytorch_model.bin`) |
-| Loader | `torch.load()` + pickle hack + torchaudio | `HubertModel.from_pretrained(path)` |
-| fairseq/torchaudio dep | Required | **Zero** |
-| Python 3.13 | ❌ Breaks | ✅ Works |
-| `transformers` dep | Not used | Required (pre-installed on Colab) |
+| HTTP 404 | `[UrlDownloader] File not found: {url}` | "File not found. The link may be broken or deleted." |
+| HTTP 403 | `[UrlDownloader] Access denied: {url}` | "Access denied. The file may be private or require login." |
+| Unsupported host | `[UrlDownloader] Unsupported host: {host}` | "Unsupported host. Use Google Drive, HuggingFace, or Pixeldrain." |
+| No .pth after extract | `[UrlDownloader] No model file in archive` | "No model file (.pth/.onnx) found inside the archive." |
+| Timeout | `[UrlDownloader] Timeout: {url}` | "Download timed out. Check your connection and try again." |
+| Generic | `[UrlDownloader] {type(e).__name__}: {e}` | "An unexpected error occurred. Check server logs." |
 
 ---
 
-## Exact Applio Pattern (from source)
+### 2. Backend — VoiceChangerManager additions
 
-From `Applio/rvc/lib/utils.py` (lines 33–36, 179–180):
-```python
-class HubertModelWithFinalProj(HubertModel):
-    def __init__(self, config):
-        super().__init__(config)
-        self.final_proj = nn.Linear(config.hidden_size, config.classifier_proj_size)
+**File:** `server/voice_changer/VoiceChangerManager.py`
 
-# Loading:
-models = HubertModelWithFinalProj.from_pretrained(model_path)
-```
-
-From `Applio/rvc/realtime/pipeline.py` (lines 376–381) and `rvc/infer/pipeline.py` (lines 336–339):
-```python
-feats = self.hubert_model(feats)["last_hidden_state"]
-feats = (
-    self.hubert_model.final_proj(feats[0]).unsqueeze(0)
-    if self.version == "v1"
-    else feats
-)
-```
-
-> **Key insight:** Applio always uses `["last_hidden_state"]` — it does NOT index into
-> `hidden_states[layer]`. The v1/v2 branch is based on `version` string, not `embOutputLayer`.
+- Add module-level `_url_download_status: dict[int, dict]` for progress tracking:
+  ```python
+  # { slot: {"progress": 0-100, "status": "idle|downloading|done|error", "msg": ""} }
+  ```
+- Add method `download_model_from_url(url: str, slot: int)`:
+  - Runs `UrlModelDownloader.download_model_from_url(...)` in a background thread
+  - Passes a progress callback that writes to `_url_download_status[slot]`
+  - Sets status to `"done"` or `"error"` when complete
+- Add method `get_url_download_status(slot: int) -> dict`
 
 ---
 
-## Adapting to Our `extractFeatures` API
+### 3. Backend — REST endpoints
 
-Our `Pipeline.py` calls:
-```python
-feats = self.embedder.extractFeatures(feats, embOutputLayer, useFinalProj)
-```
+**File:** `server/restapi/MMVC_Rest_Fileuploader.py`
 
-We preserve this signature. Inside the new `extractFeatures`, we **ignore `embOutputLayer`**
-(always use `last_hidden_state`, matching Applio exactly) and use `useFinalProj` to decide
-whether to apply `final_proj`:
-
-```python
-def extractFeatures(self, feats, embOutputLayer=9, useFinalProj=True):
-    with torch.no_grad():
-        outputs = self.model(feats.to(self.dev))
-        hidden = outputs["last_hidden_state"]          # always last hidden state (Applio-exact)
-        if useFinalProj and self.model.final_proj is not None:
-            return self.model.final_proj(hidden[0]).unsqueeze(0)
-        return hidden
-```
-
-This means:
-- RVC v1 → `useFinalProj=True`  → `final_proj(last_hidden_state[0])` → 256-dim ✅
-- RVC v2 → `useFinalProj=False` → raw `last_hidden_state` → 768-dim ✅
-- `embOutputLayer` is accepted but unused (backward-compatible, no callers need to change)
+- `POST /download_model_url`
+  - Body: `url: str (Form)`, `slot: int (Form)`
+  - Kicks off background download, returns `{"status": "OK", "msg": "Download started"}`
+- `GET /download_model_url_status`
+  - Query param: `slot: int`
+  - Returns: `{"progress": N, "status": "...", "msg": "..."}`
 
 ---
 
-## Files to Change
+### 4. Frontend — New client methods
 
-### 1. `server/voice_changer/RVC/embedder/FairseqHubert.py` — **Full rewrite**
+**File:** `client/lib/src/client/ServerRestClient.ts`
 
-**Remove entirely:**
-- `_Stub` class
-- `_FairseqPickleModule` class
-- `_load_fairseq_checkpoint_without_fairseq()` function
-- `HubertModelWithFinalProj(nn.Module)` (torchaudio-based wrapper)
-- All `torchaudio` imports
-- All `pickle` imports
+```ts
+downloadModelFromUrl = async (url: string, slot: number) => {
+    const formData = new FormData();
+    formData.append("url", url);
+    formData.append("slot", String(slot));
+    const res = await fetch(this.serverUrl + "/download_model_url", { method: "POST", body: formData });
+    return await res.json();
+};
 
-**Add:**
-- `from transformers import HubertModel`
-- `from torch import nn`
-- New `HubertModelWithFinalProj(HubertModel)` — exact copy from Applio `rvc/lib/utils.py`
-- New `FairseqHubert.loadModel()` — calls `HubertModelWithFinalProj.from_pretrained(file)` where `file` is a **directory path** (e.g. `pretrain/contentvec`)
-- New `FairseqHubert.extractFeatures()` — uses `model(feats)["last_hidden_state"]`, applies `final_proj` based on `useFinalProj` flag
+getUrlDownloadStatus = async (slot: number) => {
+    const res = await fetch(`${this.serverUrl}/download_model_url_status?slot=${slot}`);
+    return await res.json();
+};
+```
 
-### 2. `server/voice_changer/RVC/embedder/FairseqContentvec.py` — **No change needed**
+**File:** `client/lib/src/hooks/useServerSetting.ts`
 
-Already subclasses `FairseqHubert` and just calls `super().loadModel()` then overrides `embedderType`.
-Works as-is once `FairseqHubert` is fixed. The `file` arg must be a directory path.
+- Expose both new methods in `ServerSettingState`.
 
-### 3. `server/downloader/WeightDownloader.py` — **Change download target**
+---
 
-- **Old:** downloads `hubert_base.pt` from `ddPn08/rvc-webui-models` as a single file
-- **New:** downloads `contentvec/pytorch_model.bin` + `contentvec/config.json` from `IAHispano/Applio` into `pretrain/contentvec/`
-- **Existence check:** check for `pretrain/contentvec/pytorch_model.bin` (file), not the old `.pt` path
-- Both `hubert_base` and `content_vec_500` routes point to same `pretrain/contentvec/` dir
-- Remove the final hard-fail check on `hubert_base` existing as a single file — replace with dir check
-- Use `requests` or `urllib` (already available) instead of `wget` (which Applio uses but may not be installed)
+### 5. Frontend — FileUploader modal changes
 
-### 4. `server/Okada.py` — **Change default arg paths**
+**File:** `client/demo/src/components/demo/904-3_FileUploader.tsx`
 
-| Arg | Old default | New default |
+**Changes:**
+- Remove `VoiceChangerType` dropdown (always RVC, no need to surface it)
+- Add `[Upload Model via URL]` button next to existing `[upload]` button
+- Add local state: `subScreen: "FileUploader" | "URLUploader"`
+- When `subScreen === "URLUploader"`, render:
+
+```
+┌──────────────────────────────────────────┐
+│  File Uploader                           │
+├──────────────────────────────────────────┤
+│  Upload Model via URL       [<< back]   │
+│                                          │
+│  ℹ Supported sources:                   │
+│    • Google Drive                        │
+│    • HuggingFace                         │
+│    • Pixeldrain                          │
+│                                          │
+│  URL: [______________________________]   │
+│                                          │
+│  [  Upload via URL  ]                    │
+│                                          │
+│  ████████░░░░░░░  42%    (while active) │
+│                                          │
+│  ❌ Failed: <reason>   (on error)        │
+└──────────────────────────────────────────┘
+```
+
+**URL upload logic (polling):**
+```tsx
+const handleUrlUpload = async () => {
+    setUrlUploadStatus("downloading");
+    setUrlProgress(0);
+    setUrlError("");
+    await voiceChangerClient.downloadModelFromUrl(url, props.targetIndex);
+    const poll = setInterval(async () => {
+        const data = await voiceChangerClient.getUrlDownloadStatus(props.targetIndex);
+        setUrlProgress(data.progress);
+        if (data.status === "done") {
+            clearInterval(poll);
+            setUrlUploadStatus("idle");
+            props.backToSlotManager();
+        } else if (data.status === "error") {
+            clearInterval(poll);
+            setUrlUploadStatus("idle");
+            setUrlError(data.msg);
+        }
+    }, 500);
+};
+```
+
+---
+
+## Pixeldrain URL Conversion
+
+```
+https://pixeldrain.com/u/FILEID
+    →  https://pixeldrain.com/api/file/FILEID?download
+```
+Parse with: `re.search(r'pixeldrain\.com/u/([A-Za-z0-9]+)', url)`
+
+---
+
+## File Change Summary
+
+| File | Type | Change |
 |---|---|---|
-| `--hubert_base` | `pretrain/hubert_base.pt` | `pretrain/contentvec` |
-| `--content_vec_500` | `pretrain/checkpoint_best_legacy_500.pt` | `pretrain/contentvec` |
-
-Everything else stays the same.
-
-### 5. `server/requirements.txt` — **Add `transformers`, remove `torchaudio`**
-
-- Add: `transformers>=4.27.0`
-- Remove or comment out: `torchaudio` (no longer needed for HuBERT loading)
-  - Keep only if other parts of the codebase use it (check first)
-
----
-
-## Download URLs (from Applio's `load_embedding()` in `rvc/lib/utils.py`)
-
-| File | URL |
-|---|---|
-| `pretrain/contentvec/pytorch_model.bin` | `https://huggingface.co/IAHispano/Applio/resolve/main/Resources/embedders/contentvec/pytorch_model.bin` |
-| `pretrain/contentvec/config.json` | `https://huggingface.co/IAHispano/Applio/resolve/main/Resources/embedders/contentvec/config.json` |
-
-These are the exact URLs from Applio's `online_embedders` and `config_files` dicts (lines 142–157 of `rvc/lib/utils.py`).
-
----
-
-## What Does NOT Change
-
-| Component | Status |
-|---|---|
-| `EmbedderManager.py` | No change — routing to `FairseqHubert` / `FairseqContentvec` stays the same |
-| `Embedder.py` (base class) | No change |
-| `FairseqContentvec.py` | No change |
-| `OnnxContentvec.py` | No change — ONNX path still tried first, falls back to HF loader |
-| `Whisper.py` | No change |
-| `Pipeline.py` / `PipelineGenerator.py` | No change — `extractFeatures(feats, embOutputLayer, useFinalProj)` API unchanged |
-| `VoiceChangerParams.py` | No structural change — `hubert_base` field now holds a **dir path** |
-| All pitch extractors | No change |
-| Frontend / UI | No change |
+| `server/downloader/UrlModelDownloader.py` | **NEW** | URL download + extract + slot placement |
+| `server/voice_changer/VoiceChangerManager.py` | Modify | `download_model_from_url()` + progress dict |
+| `server/restapi/MMVC_Rest_Fileuploader.py` | Modify | 2 new routes: POST + GET |
+| `client/lib/src/client/ServerRestClient.ts` | Modify | 2 new HTTP methods |
+| `client/lib/src/hooks/useServerSetting.ts` | Modify | Expose new methods |
+| `client/demo/src/components/demo/904-3_FileUploader.tsx` | Modify | Remove dropdown; URL sub-screen + progress UI |
 
 ---
 
 ## Implementation Order
 
-1. **`FairseqHubert.py`** — core fix (full rewrite)
-2. **`WeightDownloader.py`** — download HF-format weights into `pretrain/contentvec/`
-3. **`Okada.py`** — update default `--hubert_base` and `--content_vec_500` to `pretrain/contentvec`
-4. **`requirements.txt`** — add `transformers`, audit `torchaudio`
+1. `UrlModelDownloader.py`
+2. `VoiceChangerManager.py`
+3. `MMVC_Rest_Fileuploader.py`
+4. `ServerRestClient.ts`
+5. `useServerSetting.ts`
+6. `904-3_FileUploader.tsx`
 
----
+## Rule
 
-## Testing Checklist
-
-- [ ] Server starts without import errors
-- [ ] `pretrain/contentvec/pytorch_model.bin` and `config.json` downloaded on first run
-- [ ] Model loads: no exception in embedder loading
-- [ ] Pipeline initializes: no `Pipeline is not initialized` loop
-- [ ] Voice conversion produces audio output (RVC v1 → 256-dim, RVC v2 → 768-dim)
+Don't use subagent for saving antigravity tokens

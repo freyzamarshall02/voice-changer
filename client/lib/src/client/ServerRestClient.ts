@@ -310,4 +310,18 @@ export class ServerRestClient {
             return new ArrayBuffer(10);
         }
     };
+
+    downloadModelFromUrl = async (url: string, slot: number) => {
+        const formData = new FormData();
+        formData.append("url", url);
+        formData.append("slot", String(slot));
+        const res = await fetch(this.serverUrl + "/download_model_url", { method: "POST", body: formData });
+        return await res.json();
+    };
+
+    getUrlDownloadStatus = async (slot: number) => {
+        const res = await fetch(`${this.serverUrl}/download_model_url_status?slot=${slot}`);
+        return await res.json();
+    };
 }
+

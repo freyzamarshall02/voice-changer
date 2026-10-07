@@ -24,6 +24,10 @@ import re
 
 logger = VoiceChangaerLogger.get_instance().getLogger()
 
+# Progress tracking for URL-based model downloads.
+# Structure: { slot: {"progress": 0-100, "status": "idle|downloading|done|error", "msg": ""} }
+_url_download_status: dict[int, dict] = {}
+
 
 @dataclass()
 class GPUInfo:
@@ -294,3 +298,37 @@ class VoiceChangerManager(ServerDeviceCallbacks):
         # self.voiceChanger.upload_model_assets(params)
         self.modelSlotManager.store_model_assets(params)
         return self.get_info()
+
+    def download_model_from_url(self, url: str, slot: int) -> None:
+        """Kick off a background thread that downloads a model from *url* into *slot*."""
+        global _url_download_status
+        _url_download_status[slot] = {"progress": 0, "status": "downloading", "msg": ""}
+
+        def _run():
+            from downloader.UrlModelDownloader import download_model_from_url as _dl
+
+            def _cb(pct: int):
+                _url_download_status[slot]["progress"] = pct
+
+            try:
+                _dl(url, slot, self.params.model_dir, _cb)
+                _url_download_status[slot]["status"] = "done"
+                _url_download_status[slot]["progress"] = 100
+                self.modelSlotManager.getAllSlotInfo(reload=True)
+            except ValueError as e:
+                logger.error(f"[UrlDownloader] {e}")
+                _url_download_status[slot]["status"] = "error"
+                _url_download_status[slot]["msg"] = str(e)
+            except Exception as e:
+                logger.error(f"[UrlDownloader] {type(e).__name__}: {e}")
+                _url_download_status[slot]["status"] = "error"
+                _url_download_status[slot]["msg"] = "An unexpected error occurred. Check server logs."
+
+        t = threading.Thread(target=_run, daemon=True)
+        t.start()
+
+    def get_url_download_status(self, slot: int) -> dict:
+        """Return current download status for *slot*."""
+        global _url_download_status
+        return _url_download_status.get(slot, {"progress": 0, "status": "idle", "msg": ""})
+
