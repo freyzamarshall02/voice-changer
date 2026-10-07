@@ -205,7 +205,9 @@ export const useClient = (props: UseClientProps): ClientState => {
         const audio = document.getElementById(elemId) as HTMLAudioElement;
         if (audio.paused) {
             audio.srcObject = voiceChangerClientRef.current.stream;
-            audio.play();
+            audio.play().catch((e) => {
+                console.warn("[setAudioOutputElementId] play() was blocked (likely awaiting user gesture):", e);
+            });
         }
     };
 
@@ -217,7 +219,9 @@ export const useClient = (props: UseClientProps): ClientState => {
         const audio = document.getElementById(elemId) as HTMLAudioElement;
         if (audio.paused) {
             audio.srcObject = voiceChangerClientRef.current.monitorStream;
-            audio.play();
+            audio.play().catch((e) => {
+                console.warn("[setAudioMonitorElementId] play() was blocked (likely awaiting user gesture):", e);
+            });
         }
     };
 
