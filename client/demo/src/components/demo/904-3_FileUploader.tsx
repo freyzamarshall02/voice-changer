@@ -85,6 +85,7 @@ export const FileUploaderScreen = (props: FileUploaderScreenProps) => {
                 clearInterval(pollRef.current!);
                 pollRef.current = null;
                 setUrlUploadStatus("idle");
+                await serverSetting.reloadServerInfo();
                 props.backToSlotManager();
             } else if (data.status === "error") {
                 clearInterval(pollRef.current!);

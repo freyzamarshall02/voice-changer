@@ -62,18 +62,31 @@ def _stream_download(url: str, dest_path: str, progress_callback: Callable[[int]
         raise ValueError("Download timed out. Check your connection and try again.")
 
 
+def _is_zip_file(path: str) -> bool:
+    """Return True if the file at *path* has a ZIP magic header (PK\\x03\\x04)."""
+    try:
+        with open(path, "rb") as f:
+            return f.read(4) == b"PK\x03\x04"
+    except OSError:
+        return False
+
+
 def _clean_extracted_files(extract_dir: str) -> None:
-    """Flatten single-level subdirectories: move all files into extract_dir root."""
-    for entry in list(os.scandir(extract_dir)):
-        if entry.is_dir():
-            for sub_entry in os.scandir(entry.path):
-                dest = os.path.join(extract_dir, sub_entry.name)
-                if not os.path.exists(dest):
-                    shutil.move(sub_entry.path, dest)
-            try:
-                os.rmdir(entry.path)
-            except OSError:
-                pass  # not empty — nested archives, leave as-is
+    """Recursively flatten all subdirectories: move every file into extract_dir root."""
+    changed = True
+    while changed:
+        changed = False
+        for entry in list(os.scandir(extract_dir)):
+            if entry.is_dir():
+                for sub_entry in os.scandir(entry.path):
+                    dest = os.path.join(extract_dir, sub_entry.name)
+                    if not os.path.exists(dest):
+                        shutil.move(sub_entry.path, dest)
+                        changed = True
+                try:
+                    shutil.rmtree(entry.path, ignore_errors=True)
+                except OSError:
+                    pass
 
 
 def download_model_from_url(
@@ -142,7 +155,8 @@ def download_model_from_url(
     # ── Determine what was downloaded and place it ────────────────────────────
     ext = os.path.splitext(downloaded_path)[1].lower()
 
-    if ext == ".zip":
+    # Use magic bytes to detect zips — gdown gives files with no extension
+    if ext == ".zip" or _is_zip_file(downloaded_path):
         # Extract to a temp sub-dir, then clean & move files
         extract_tmp = os.path.join(tmp_dir, f"extract_slot{slot}")
         os.makedirs(extract_tmp, exist_ok=True)
