@@ -109,6 +109,8 @@ export const ServerSettingKey = {
     inputSampleRate: "inputSampleRate",
     enableDirectML: "enableDirectML",
 
+    extraConvertSize: "extraConvertSize",
+
 } as const;
 export type ServerSettingKey = (typeof ServerSettingKey)[keyof typeof ServerSettingKey];
 
@@ -154,6 +156,8 @@ export type VoiceChangerServerSetting = {
 
     inputSampleRate: InputSampleRate;
     enableDirectML: number;
+
+    extraConvertSize: number;
 
 };
 
@@ -281,6 +285,8 @@ export const DefaultServerSetting: ServerInfo = {
     gpus: [],
 
     enableDirectML: 0,
+
+    extraConvertSize: 1024 * 128,
 
     //
     status: "ok",

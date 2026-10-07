@@ -190,7 +190,7 @@ export const ConvertArea = (props: ConvertProps) => {
                 {gpuSelect}
             </div>
         );
-    }, [serverSetting.serverSetting, setting, serverSetting.updateServerSettings, setWorkletNodeSetting, edition]);
+    }, [serverSetting.serverSetting, setting, serverSetting.updateServerSettings, setWorkletNodeSetting, edition, trancateBuffer]);
 
     return convertArea;
 };
