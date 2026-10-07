@@ -1,5 +1,58 @@
 import sys
 
+# ---------------------------------------------------------------------------
+# ORT CUDA fix — must run before onnxruntime is imported anywhere.
+#
+# Problem: onnxruntime-gpu links against the system CUDA runtime. When
+# PyTorch is built for a newer CUDA (e.g. 13.x) than ORT expects, ORT's
+# CUDAExecutionProvider silently falls back to CPU instead of raising an
+# error.
+#
+# Fix: preload PyTorch's own bundled libcudart into this process via ctypes
+# so that when ORT's CUDA provider initialises it finds a compatible runtime
+# already loaded — regardless of which CUDA version Colab (or any other env)
+# happens to have installed.
+# ---------------------------------------------------------------------------
+def _preload_torch_cuda() -> None:
+    try:
+        import glob
+        import ctypes
+        import os
+
+        import torch  # noqa: PLC0415 — intentional early import
+
+        if not torch.cuda.is_available():
+            return  # nothing to do on CPU-only machines
+
+        torch_lib_dir = os.path.join(os.path.dirname(torch.__file__), "lib")
+
+        # Prefer the versioned .so (e.g. libcudart.so.13.0) so the exact
+        # build that PyTorch ships with is loaded, not a random system one.
+        candidates = sorted(
+            glob.glob(os.path.join(torch_lib_dir, "libcudart.so*")),
+            key=lambda p: (p.endswith(".so"), p),  # versioned first
+            reverse=True,
+        )
+
+        for lib_path in candidates:
+            try:
+                ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+                print(
+                    f"[Voice Changer] Preloaded PyTorch CUDA runtime: {lib_path} "
+                    f"(CUDA {torch.version.cuda}) — ORT will use this runtime."
+                )
+                return
+            except OSError:
+                continue
+
+        print("[Voice Changer] CUDA preload: no libcudart found in torch/lib, skipping.")
+    except Exception as exc:
+        # Never crash the server over this; ORT will just fall back to CPU as before.
+        print(f"[Voice Changer] CUDA preload skipped ({exc})")
+
+
+_preload_torch_cuda()
+
 
 def strtobool(val: str) -> int:
     """Minimal strtobool — replaces distutils.util.strtobool removed in Python 3.12."""
