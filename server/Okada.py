@@ -8,46 +8,86 @@ import sys
 # CUDAExecutionProvider silently falls back to CPU instead of raising an
 # error.
 #
-# Fix: preload PyTorch's own bundled libcudart into this process via ctypes
-# so that when ORT's CUDA provider initialises it finds a compatible runtime
-# already loaded — regardless of which CUDA version Colab (or any other env)
-# happens to have installed.
+# Fix: preload libcudart into this process with RTLD_GLOBAL via ctypes so
+# that when ORT's CUDA provider initialises it finds a compatible runtime
+# already in memory — regardless of which CUDA version the environment has.
+#
+# Search order (handles old/new PyTorch wheels, Colab, and bare CUDA installs):
+#   1. torch/lib/            — old PyTorch wheels that bundle libcudart
+#   2. nvidia/cuda_runtime/  — new PyTorch wheels (pip nvidia-cuda-runtime-cuXX)
+#   3. /usr/local/cuda*/lib64 — system CUDA (Colab, Docker images, bare metal)
+#   4. /proc/self/maps       — already loaded by PyTorch's own CUDA init
+#   5. ctypes.util.find_library — OS linker cache fallback
 # ---------------------------------------------------------------------------
 def _preload_torch_cuda() -> None:
     try:
-        import glob
         import ctypes
+        import ctypes.util
+        import glob
         import os
+        import sysconfig
 
         import torch  # noqa: PLC0415 — intentional early import
 
         if not torch.cuda.is_available():
             return  # nothing to do on CPU-only machines
 
-        torch_lib_dir = os.path.join(os.path.dirname(torch.__file__), "lib")
+        seen: set = set()
+        candidates: list = []
 
-        # Prefer the versioned .so (e.g. libcudart.so.13.0) so the exact
-        # build that PyTorch ships with is loaded, not a random system one.
-        candidates = sorted(
-            glob.glob(os.path.join(torch_lib_dir, "libcudart.so*")),
-            key=lambda p: (p.endswith(".so"), p),  # versioned first
-            reverse=True,
-        )
+        def _add(paths):
+            for p in paths:
+                if p and p not in seen:
+                    seen.add(p)
+                    candidates.append(p)
+
+        # 1. torch/lib/ — older PyTorch wheels bundle libcudart here
+        torch_lib = os.path.join(os.path.dirname(torch.__file__), "lib")
+        _add(sorted(glob.glob(os.path.join(torch_lib, "libcudart.so*")), reverse=True))
+
+        # 2. site-packages/nvidia/cuda_runtime/lib/ — PyTorch 2.x+ nvidia wheels
+        site_lib = sysconfig.get_path("purelib") or ""
+        _add(sorted(glob.glob(os.path.join(site_lib, "nvidia", "cuda_runtime", "lib", "libcudart.so*")), reverse=True))
+
+        # 3. System CUDA installation (typical on Colab: /usr/local/cuda/lib64/)
+        for cuda_dir in sorted(glob.glob("/usr/local/cuda*/"), reverse=True):
+            _add(sorted(glob.glob(os.path.join(cuda_dir, "lib64", "libcudart.so*")), reverse=True))
+
+        # 4. /proc/self/maps — libcudart already mapped by PyTorch's CUDA init;
+        #    loading it again with RTLD_GLOBAL promotes its symbols to global scope.
+        try:
+            with open("/proc/self/maps") as fh:
+                for line in fh:
+                    if "libcudart" in line and ".so" in line:
+                        path = line.split()[-1].strip()
+                        if os.path.isfile(path):
+                            _add([path])
+        except OSError:
+            pass
+
+        # 5. OS linker cache — last resort
+        sys_lib = ctypes.util.find_library("cudart")
+        if sys_lib:
+            _add([sys_lib])
 
         for lib_path in candidates:
             try:
                 ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
                 print(
-                    f"[Voice Changer] Preloaded PyTorch CUDA runtime: {lib_path} "
-                    f"(CUDA {torch.version.cuda}) — ORT will use this runtime."
+                    f"[Voice Changer] Preloaded CUDA runtime: {lib_path} "
+                    f"(torch CUDA {torch.version.cuda}) — ORT will use this runtime."
                 )
                 return
             except OSError:
                 continue
 
-        print("[Voice Changer] CUDA preload: no libcudart found in torch/lib, skipping.")
+        print(
+            "[Voice Changer] CUDA preload: libcudart not found in any known location. "
+            "ORT may fall back to CPU. Searched: torch/lib, nvidia wheels, "
+            "/usr/local/cuda*/lib64, /proc/self/maps, ldconfig."
+        )
     except Exception as exc:
-        # Never crash the server over this; ORT will just fall back to CPU as before.
+        # Never crash the server over this; ORT will fall back to CPU as before.
         print(f"[Voice Changer] CUDA preload skipped ({exc})")
 
 
