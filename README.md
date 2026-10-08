@@ -1,20 +1,19 @@
-# 🎙️ Realtime Voice Changer — Google Colab Fork
+# Realtime Voice Changer — For Colab or Kaggle
 
 > A fork of [w-okada/voice-changer](https://github.com/w-okada/voice-changer) made specifically for **Google Colab**.  
-> No local setup required — just open the notebook and run.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/freyzamarshall02/w-okadavoicechangercolab/blob/main/Okada_Voice_Changer_Colab_Unofficial.ipynb)
 
 ---
 
-## ✨ Features
+## Features
 
-- 🎤 **RVC** (Retrieval-based Voice Conversion) support only
-- 🔗 **Download model via URL** — no manual file uploads needed
+- **RVC** (Retrieval-based Voice Conversion) support only
+- **Download model via URL** — no manual file uploads needed
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 1. Click the **Open in Colab** button above
 2. Run all cells in order
@@ -25,4 +24,4 @@
 
 ## Credits
 
-Based on the original [w-okada/voice-changer](https://github.com/w-okada/voice-changer).
+Original [w-okada/voice-changer](https://github.com/w-okada/voice-changer).
