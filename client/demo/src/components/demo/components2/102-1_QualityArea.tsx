@@ -66,6 +66,8 @@ export const QualityArea = (props: QualityAreaProps) => {
             </div>
         );
 
+        const clampThresh = (val: number) => Math.min(0.001, Math.max(0, Math.round(val * 100000) / 100000));
+
         const threshold = webEdition ? (
             <></>
         ) : (
@@ -87,7 +89,22 @@ export const QualityArea = (props: QualityAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <span className="config-sub-area-slider-control-val">{serverSetting.serverSetting.silentThreshold}</span>
+                        <input
+                            type="number"
+                            min="0"
+                            max="0.001"
+                            step="0.00001"
+                            value={serverSetting.serverSetting.silentThreshold || 0}
+                            style={{ width: "6em" }}
+                            onChange={(e) => {
+                                serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: clampThresh(Number(e.target.value)) });
+                            }}
+                        />
+                        <span
+                            style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
+                            title="Reset to 0"
+                            onClick={() => serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: 0 })}
+                        >↺</span>
                     </div>
                 </div>
             </div>

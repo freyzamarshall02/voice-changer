@@ -27,6 +27,8 @@ export const IndexArea = (_props: IndexAreaProps) => {
             await serverSetting.updateServerSettings({ ...serverSetting.serverSetting, indexRatio: val });
         };
 
+        const clampIndex = (val: number) => Math.min(1, Math.max(0, Math.round(val * 10) / 10));
+
         return (
             <div className="character-area-control">
                 <div className="character-area-control-title">INDEX:</div>
@@ -45,7 +47,22 @@ export const IndexArea = (_props: IndexAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <span className="character-area-slider-control-val">{currentIndexRatio}</span>
+                        <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={currentIndexRatio}
+                            style={{ width: "4em" }}
+                            onChange={(e) => {
+                                indexRatioValueUpdatedAction(clampIndex(Number(e.target.value)));
+                            }}
+                        />
+                        <span
+                            style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
+                            title="Reset to 0"
+                            onClick={() => indexRatioValueUpdatedAction(0)}
+                        >↺</span>
                     </div>
                 </div>
             </div>

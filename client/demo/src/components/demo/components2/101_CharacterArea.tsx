@@ -191,6 +191,8 @@ export const CharacterArea = (_props: CharacterAreaProps) => {
                       await serverSetting.updateServerSettings({ ...serverSetting.serverSetting, serverOutputAudioGain: val });
                   };
 
+        const clampGain = (val: number) => Math.min(10.0, Math.max(0.1, Math.round(val * 10) / 10));
+
         return (
             <div className="character-area-control">
                 <div className="character-area-control-title">GAIN:</div>
@@ -209,7 +211,23 @@ export const CharacterArea = (_props: CharacterAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <span className="character-area-slider-control-val">{currentInputGain}</span>
+                        <input
+                            type="number"
+                            min="0.1"
+                            max="10.0"
+                            step="0.1"
+                            value={currentInputGain}
+                            style={{ width: "4em" }}
+                            onChange={(e) => {
+                                const clamped = clampGain(Number(e.target.value));
+                                inputValueUpdatedAction(clamped);
+                            }}
+                        />
+                        <span
+                            style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
+                            title="Reset to 1"
+                            onClick={() => inputValueUpdatedAction(1)}
+                        >↺</span>
                     </div>
 
                     <div className="character-area-slider-control">
@@ -226,7 +244,23 @@ export const CharacterArea = (_props: CharacterAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <span className="character-area-slider-control-val">{currentOutputGain}</span>
+                        <input
+                            type="number"
+                            min="0.1"
+                            max="10.0"
+                            step="0.1"
+                            value={currentOutputGain}
+                            style={{ width: "4em" }}
+                            onChange={(e) => {
+                                const clamped = clampGain(Number(e.target.value));
+                                outputValueUpdatedAction(clamped);
+                            }}
+                        />
+                        <span
+                            style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
+                            title="Reset to 1"
+                            onClick={() => outputValueUpdatedAction(1)}
+                        >↺</span>
                     </div>
                 </div>
             </div>

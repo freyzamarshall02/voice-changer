@@ -804,6 +804,8 @@ export const DeviceArea = (_props: DeviceAreaProps) => {
                       await serverSetting.updateServerSettings({ ...serverSetting.serverSetting, serverMonitorAudioGain: val });
                   };
 
+        const clampGain = (val: number) => Math.min(10.0, Math.max(0.1, Math.round(val * 10) / 10));
+
         return (
             <div className="config-sub-area-control">
                 <div className="config-sub-area-control-title left-padding-2">gain</div>
@@ -821,7 +823,22 @@ export const DeviceArea = (_props: DeviceAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <span className="character-area-slider-control-val">{currentMonitorGain}</span>
+                        <input
+                            type="number"
+                            min="0.1"
+                            max="10.0"
+                            step="0.1"
+                            value={currentMonitorGain}
+                            style={{ width: "4em" }}
+                            onChange={(e) => {
+                                monitorValueUpdatedAction(clampGain(Number(e.target.value)));
+                            }}
+                        />
+                        <span
+                            style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
+                            title="Reset to 1"
+                            onClick={() => monitorValueUpdatedAction(1)}
+                        >↺</span>
                     </div>
                 </div>
             </div>
