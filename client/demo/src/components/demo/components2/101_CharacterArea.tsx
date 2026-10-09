@@ -1,3 +1,4 @@
+import { ClampedNumberInput } from "../../ClampedNumberInput";
 import React, { useEffect, useMemo, useState } from "react";
 import { useAppState } from "../../../001_provider/001_AppStateProvider";
 import { useGuiState } from "../001_GuiStateProvider";
@@ -211,17 +212,13 @@ export const CharacterArea = (_props: CharacterAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <input
-                            type="number"
-                            min="0.1"
-                            max="10.0"
-                            step="0.1"
+                        <ClampedNumberInput
+                            min={0.1}
+                            max={10.0}
+                            step={0.1}
                             value={currentInputGain}
                             style={{ width: "4em" }}
-                            onChange={(e) => {
-                                const clamped = clampGain(Number(e.target.value));
-                                inputValueUpdatedAction(clamped);
-                            }}
+                            onChange={inputValueUpdatedAction}
                         />
                         <span
                             style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
@@ -244,17 +241,13 @@ export const CharacterArea = (_props: CharacterAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <input
-                            type="number"
-                            min="0.1"
-                            max="10.0"
-                            step="0.1"
+                        <ClampedNumberInput
+                            min={0.1}
+                            max={10.0}
+                            step={0.1}
                             value={currentOutputGain}
                             style={{ width: "4em" }}
-                            onChange={(e) => {
-                                const clamped = clampGain(Number(e.target.value));
-                                outputValueUpdatedAction(clamped);
-                            }}
+                            onChange={outputValueUpdatedAction}
                         />
                         <span
                             style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}

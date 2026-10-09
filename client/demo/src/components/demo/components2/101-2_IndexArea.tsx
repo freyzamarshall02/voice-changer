@@ -1,3 +1,4 @@
+import { ClampedNumberInput } from "../../ClampedNumberInput";
 import React, { useMemo } from "react";
 import { useAppState } from "../../../001_provider/001_AppStateProvider";
 
@@ -47,16 +48,13 @@ export const IndexArea = (_props: IndexAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <input
-                            type="number"
-                            min="0"
-                            max="1"
-                            step="0.1"
+                        <ClampedNumberInput
+                            min={0}
+                            max={1}
+                            step={0.1}
                             value={currentIndexRatio}
                             style={{ width: "4em" }}
-                            onChange={(e) => {
-                                indexRatioValueUpdatedAction(clampIndex(Number(e.target.value)));
-                            }}
+                            onChange={indexRatioValueUpdatedAction}
                         />
                         <span
                             style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}

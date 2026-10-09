@@ -1,3 +1,4 @@
+import { ClampedNumberInput } from "../../ClampedNumberInput";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAppState } from "../../../001_provider/001_AppStateProvider";
 import { fileSelectorAsDataURL, useIndexedDB } from "@dannadori/voice-changer-client-js";
@@ -823,16 +824,13 @@ export const DeviceArea = (_props: DeviceAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <input
-                            type="number"
-                            min="0.1"
-                            max="10.0"
-                            step="0.1"
+                        <ClampedNumberInput
+                            min={0.1}
+                            max={10.0}
+                            step={0.1}
                             value={currentMonitorGain}
                             style={{ width: "4em" }}
-                            onChange={(e) => {
-                                monitorValueUpdatedAction(clampGain(Number(e.target.value)));
-                            }}
+                            onChange={monitorValueUpdatedAction}
                         />
                         <span
                             style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}

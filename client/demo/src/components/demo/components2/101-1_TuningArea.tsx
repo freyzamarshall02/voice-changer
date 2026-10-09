@@ -1,3 +1,4 @@
+import { ClampedNumberInput } from "../../ClampedNumberInput";
 import React, { useMemo } from "react";
 import { useAppState } from "../../../001_provider/001_AppStateProvider";
 
@@ -56,16 +57,13 @@ export const TuningArea = (_props: TuningAreaProps) => {
                                 }}
                             ></input>
                         </span>
-                        <input
-                            type="number"
-                            min="-50"
-                            max="50"
-                            step="1"
+                        <ClampedNumberInput
+                            min={-50}
+                            max={50}
+                            step={1}
                             value={currentTuning}
                             style={{ width: "4em" }}
-                            onChange={(e) => {
-                                tranValueUpdatedAction(clampTune(Number(e.target.value)));
-                            }}
+                            onChange={tranValueUpdatedAction}
                         />
                         <span
                             style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}

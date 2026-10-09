@@ -1,3 +1,4 @@
+import { ClampedNumberInput } from "../../ClampedNumberInput";
 import React, { useMemo } from "react";
 import { useAppState } from "../../../001_provider/001_AppStateProvider";
 import { F0Detector } from "@dannadori/voice-changer-client-js";
@@ -74,37 +75,40 @@ export const QualityArea = (props: QualityAreaProps) => {
             <div className="config-sub-area-control">
                 <div className="config-sub-area-control-title">S.Thresh.:</div>
                 <div className="config-sub-area-control-field">
-                    <div className="config-sub-area-slider-control">
-                        <span className="config-sub-area-slider-control-kind"></span>
-                        <span className="config-sub-area-slider-control-slider">
-                            <input
-                                type="range"
-                                className="config-sub-area-slider-control-slider"
-                                min="0.00000"
-                                max="0.001"
-                                step="0.00001"
+                    <div className="config-sub-area-slider-control" style={{ flexWrap: "wrap", gap: "4px 0" }}>
+                        <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                            <span className="config-sub-area-slider-control-kind"></span>
+                            <span className="config-sub-area-slider-control-slider">
+                                <input
+                                    type="range"
+                                    className="config-sub-area-slider-control-slider"
+                                    min="0.00000"
+                                    max="0.001"
+                                    step="0.00001"
+                                    value={serverSetting.serverSetting.silentThreshold || 0}
+                                    onChange={(e) => {
+                                        serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: Number(e.target.value) });
+                                    }}
+                                ></input>
+                            </span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", marginLeft: "28px" }}>
+                            <ClampedNumberInput
+                                min={0}
+                                max={0.001}
+                                step={0.00001}
                                 value={serverSetting.serverSetting.silentThreshold || 0}
-                                onChange={(e) => {
-                                    serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: Number(e.target.value) });
+                                style={{ width: "6em" }}
+                                onChange={(val) => {
+                                    serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: val });
                                 }}
-                            ></input>
-                        </span>
-                        <input
-                            type="number"
-                            min="0"
-                            max="0.001"
-                            step="0.00001"
-                            value={serverSetting.serverSetting.silentThreshold || 0}
-                            style={{ width: "6em" }}
-                            onChange={(e) => {
-                                serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: clampThresh(Number(e.target.value)) });
-                            }}
-                        />
-                        <span
-                            style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
-                            title="Reset to 0"
-                            onClick={() => serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: 0 })}
-                        >↺</span>
+                            />
+                            <span
+                                style={{ cursor: "pointer", marginLeft: "4px", fontSize: "0.8em", padding: "1px 4px", border: "1px solid #888", borderRadius: "3px" }}
+                                title="Reset to 0"
+                                onClick={() => serverSetting.updateServerSettings({ ...serverSetting.serverSetting, silentThreshold: 0 })}
+                            >↺</span>
+                        </div>
                     </div>
                 </div>
             </div>
